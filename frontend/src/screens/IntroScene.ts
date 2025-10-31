@@ -1,25 +1,38 @@
 import Konva from "konva";
 import { STAGE_WIDTH, STAGE_HEIGHT } from "../constants.ts";
+//import * as fs from 'fs'; // For Node.js
+import ruleData from "../Data/rules.json";
+import storyData from '../Data/story.json'
 
 export class IntroScene{
     private group: Konva.Group;
     private layer : Konva.Layer;
     private stage : Konva.Stage;
-    private story: string;
-    private rules: string;
+    private story: string [];
+    private rules: string [];
+    // private rulesPath = './Data/rules.json';
+    // private storyPath = './Data/story.json';
+
 
 
 	//constructor(onStartClick: () => void) {
     constructor(layer:Konva.Layer, stage:Konva.Stage){
 		this.group = new Konva.Group({ visible: true });
-        this.rules = "Rules";
-        this.story = "story";
+        this.rules = ["Rules"];
+        this.story = ["story"];
         this.layer = layer;
         this.stage = stage;
+
+        console.log("Here");
+        console.log(ruleData);
+        console.log(storyData);
+
+        this.getRules();
+        this.getStory();
        
 		// Title text
         const title = new Konva.Text({
-			x: STAGE_WIDTH / 2,
+			x: this.stage.width() / 2,
 			y: 150,
 			text: "Group 12 Game",
 			fontSize: 48,
@@ -35,7 +48,7 @@ export class IntroScene{
 
 		const startButtonGroup = new Konva.Group();
 		const startButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
+			x: this.stage.width() / 2 - 100,
 			y: 300,
 			width: 200,
 			height: 60,
@@ -45,7 +58,7 @@ export class IntroScene{
 			strokeWidth: 3,
 		});
 		const startText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
+			x: this.stage.width() / 2,
 			y: 315,
 			text: "START GAME",
 			fontSize: 24,
@@ -83,30 +96,45 @@ export class IntroScene{
     };
 
 
-    getRules(): boolean{
-        this.rules = "Yes";
-        return true;
+    getRules(): void{
+        const jsonString = JSON.stringify(ruleData);
+        const parsedData: any = JSON.parse(jsonString);
+        const stringArray: string[] = Object.values(parsedData).map(String);
+        this.rules = stringArray;
+        console.log(this.rules);
+    }
+    getStory():void{
+        const jsonString = JSON.stringify(storyData);
+        const parsedData: any = JSON.parse(jsonString);
+        const stringArray: string[] = Object.values(parsedData).map(String);
+        this.story = stringArray;
+        console.log(this.story);
     }
     displayStory(): void{
-       const storyText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 150,
-			text: this.story,
-			fontSize: 48,
-			fontFamily: "Arial",
-			fill: "yellow",
-			stroke: "orange",
-			strokeWidth: 2,
-			align: "center",
-		});
-		// Center the text using offsetX
-		storyText.offsetX(storyText.width() / 2);
-        this.group.add(storyText);
+        for(let i = 0; i < this.story.length; i++){
+             const storyText = new Konva.Text({
+                x: this.stage.width() / 2,
+                y: 150 + i * 100,
+                text: this.story[i],
+                fontSize: 20,
+                fontFamily: "Arial",
+                fill: "yellow",
+                stroke: "orange",
+                strokeWidth: 2,
+                align: "center",
+            });
+            console.log(this.story[i]);
+            // Center the text using offsetX
+            storyText.offsetX(storyText.width() / 2);
+            this.group.add(storyText);
+        }
+       
 
         const nextButtonGroup = new Konva.Group();
 		const nextButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
-			y: 300,
+			 x: this.stage.width() / 2 - 100,
+
+			y: 600,
 			width: 200,
 			height: 60,
 			fill: "green",
@@ -115,12 +143,13 @@ export class IntroScene{
 			strokeWidth: 3,
 		});
 		const nextText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 315,
+			                x: this.stage.width() / 2, 
+
+			y: 615,
 			text: "NEXT",
 			fontSize: 24,
 			fontFamily: "Arial",
-			fill: "white",
+			fill: "black",
 			align: "center",
 		});
 		nextText.offsetX(nextText.width() / 2);
@@ -130,11 +159,12 @@ export class IntroScene{
 		this.group.add(nextButtonGroup);
     }
     displayRules(): void{
-        const ruleText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 150,
-			text: this.rules,
-			fontSize: 48,
+        for(let i = 0; i < this.rules.length; i++){
+            const ruleText = new Konva.Text({
+            x: this.stage.width() / 2,
+			y: 150 + i * 100,
+			text: this.rules[i],
+			fontSize: 20,
 			fontFamily: "Arial",
 			fill: "yellow",
 			stroke: "orange",
@@ -145,10 +175,13 @@ export class IntroScene{
 		ruleText.offsetX(ruleText.width() / 2);
         this.group.add(ruleText);
 
+        }
+        
         const nextButtonGroup = new Konva.Group();
 		const nextButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
-			y: 300,
+			x: this.stage.width() / 2 -100,
+
+			y: 600,
 			width: 200,
 			height: 60,
 			fill: "green",
@@ -157,12 +190,13 @@ export class IntroScene{
 			strokeWidth: 3,
 		});
 		const nextText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 315,
+			x: this.stage.width() / 2,
+
+			y: 615,
 			text: "PLAY GAME",
 			fontSize: 24,
 			fontFamily: "Arial",
-			fill: "white",
+			fill: "black",
 			align: "center",
 		});
 		nextText.offsetX(nextText.width() / 2);
