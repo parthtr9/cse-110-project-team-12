@@ -130,7 +130,46 @@ export class IntroScene{
 		this.group.add(nextButtonGroup);
     }
     displayRules(): void{
+        const ruleText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 150,
+			text: this.rules,
+			fontSize: 48,
+			fontFamily: "Arial",
+			fill: "yellow",
+			stroke: "orange",
+			strokeWidth: 2,
+			align: "center",
+		});
+		// Center the text using offsetX
+		ruleText.offsetX(ruleText.width() / 2);
+        this.group.add(ruleText);
 
+        const nextButtonGroup = new Konva.Group();
+		const nextButton = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 100,
+			y: 300,
+			width: 200,
+			height: 60,
+			fill: "green",
+			cornerRadius: 10,
+			stroke: "darkgreen",
+			strokeWidth: 3,
+		});
+		const nextText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 315,
+			text: "PLAY GAME",
+			fontSize: 24,
+			fontFamily: "Arial",
+			fill: "white",
+			align: "center",
+		});
+		nextText.offsetX(nextText.width() / 2);
+		nextButtonGroup.add(nextButton);
+		nextButtonGroup.add(nextText);
+		nextButtonGroup.on("click", this.onNextClick);
+		this.group.add(nextButtonGroup);
     }
     handleNextClick(){
 
