@@ -3,18 +3,20 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from "../constants.ts";
 
 export class IntroScene{
     private group: Konva.Group;
+    private layer : Konva.Layer;
+    private stage : Konva.Stage;
     private story: string;
     private rules: string;
 
 
 	//constructor(onStartClick: () => void) {
-    constructor(){
+    constructor(layer:Konva.Layer, stage:Konva.Stage){
 		this.group = new Konva.Group({ visible: true });
         this.rules = "Rules";
         this.story = "story";
+        this.layer = layer;
+        this.stage = stage;
        
-
-
 		// Title text
         const title = new Konva.Text({
 			x: STAGE_WIDTH / 2,
@@ -59,12 +61,26 @@ export class IntroScene{
 
 		
 	}
-
-    private onStartClick(): void {
-		// this.group.destroyChildren();
-        // this.group.draw();
-        // this.displayStory();
-	}
+    private onStartClick = () => {
+        console.log('Button clicked!');
+        // Add any other logic you want to perform here
+		this.group.destroyChildren();
+        
+        this.displayStory();
+        this.layer.add(this.group);
+        this.layer.draw();
+        this.stage.add(this.layer);
+    };
+    private onNextClick = () => {
+        console.log('Button clicked!');
+        // Add any other logic you want to perform here
+		this.group.destroyChildren();
+        
+        this.displayRules();
+        this.layer.add(this.group);
+        this.layer.draw();
+        this.stage.add(this.layer);
+    };
 
 
     getRules(): boolean{
@@ -72,7 +88,46 @@ export class IntroScene{
         return true;
     }
     displayStory(): void{
+       const storyText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 150,
+			text: this.story,
+			fontSize: 48,
+			fontFamily: "Arial",
+			fill: "yellow",
+			stroke: "orange",
+			strokeWidth: 2,
+			align: "center",
+		});
+		// Center the text using offsetX
+		storyText.offsetX(storyText.width() / 2);
+        this.group.add(storyText);
 
+        const nextButtonGroup = new Konva.Group();
+		const nextButton = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 100,
+			y: 300,
+			width: 200,
+			height: 60,
+			fill: "green",
+			cornerRadius: 10,
+			stroke: "darkgreen",
+			strokeWidth: 3,
+		});
+		const nextText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 315,
+			text: "NEXT",
+			fontSize: 24,
+			fontFamily: "Arial",
+			fill: "white",
+			align: "center",
+		});
+		nextText.offsetX(nextText.width() / 2);
+		nextButtonGroup.add(nextButton);
+		nextButtonGroup.add(nextText);
+		nextButtonGroup.on("click", this.onNextClick);
+		this.group.add(nextButtonGroup);
     }
     displayRules(): void{
 

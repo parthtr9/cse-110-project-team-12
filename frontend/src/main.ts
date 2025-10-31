@@ -23,7 +23,7 @@ const circle = new Konva.Circle({
 });
 
 let introScene :IntroScene;
-introScene = new IntroScene();
+introScene = new IntroScene(layer, stage);
 
 layer.add(introScene.getGroup());
 // add the shape to the layer
