@@ -1,14 +1,19 @@
 import Konva from "konva";
-import { STAGE_WIDTH } from "../constants.ts";
+import { STAGE_WIDTH, STAGE_HEIGHT } from "../constants.ts";
 
-class IntroScene{
+export class IntroScene{
     private group: Konva.Group;
     private story: string;
     private rules: string;
 
 
-	constructor(onStartClick: () => void) {
+	//constructor(onStartClick: () => void) {
+    constructor(){
 		this.group = new Konva.Group({ visible: true });
+        this.rules = "Rules";
+        this.story = "story";
+       
+
 
 		// Title text
         const title = new Konva.Text({
@@ -49,19 +54,21 @@ class IntroScene{
 		startText.offsetX(startText.width() / 2);
 		startButtonGroup.add(startButton);
 		startButtonGroup.add(startText);
-		startButtonGroup.on("click", onStartClick);
+		startButtonGroup.on("click", this.onStartClick);
 		this.group.add(startButtonGroup);
+
 		
 	}
 
-    private handleStartClick(): void {
-		this.group.destroyChildren();
-        this.group.draw();
+    private onStartClick(): void {
+		// this.group.destroyChildren();
+        // this.group.draw();
+        // this.displayStory();
 	}
 
 
     getRules(): boolean{
-
+        this.rules = "Yes";
         return true;
     }
     displayStory(): void{
