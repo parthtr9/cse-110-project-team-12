@@ -1,8 +1,7 @@
 import Konva from "konva";
-import { STAGE_WIDTH, STAGE_HEIGHT } from "../constants.ts";
 //import * as fs from 'fs'; // For Node.js
 import ruleData from "../Data/rules.json";
-import storyData from '../Data/story.json'
+import storyData from '../Data/story.json';
 
 export class IntroScene{
     private group: Konva.Group;
@@ -10,11 +9,10 @@ export class IntroScene{
     private stage : Konva.Stage;
     private story: string [];
     private rules: string [];
-    // private rulesPath = './Data/rules.json';
-    // private storyPath = './Data/story.json';
-
-
-
+    private state: number;
+    private meimeiRed: Konva.Image | null = null;
+    private meimeiBlue: Konva.Image | null = null;
+    
 	//constructor(onStartClick: () => void) {
     constructor(layer:Konva.Layer, stage:Konva.Stage){
 		this.group = new Konva.Group({ visible: true });
@@ -22,13 +20,28 @@ export class IntroScene{
         this.story = ["story"];
         this.layer = layer;
         this.stage = stage;
+        this.state = 0;
+        Konva.Image.fromURL("./src/Data/meimeiRed.jpg", (image) => {
+            image.width(300);
+            image.height(300);
+			image.x(this.stage.width() / 2 + 400);
+			image.y(600);
+			image.offsetX( image.width() / 2);
+			image.offsetY( image.height() / 2);
+			this.meimeiRed = image;
+		}, (error) =>{console.log(error)});
+         Konva.Image.fromURL("./src/Data/meimeiBlue.jpg", (image) => {
+            image.width(300);
+            image.height(300);
+			image.x(this.stage.width() / 2 - 400);
+			image.y(650);
+			image.offsetX( image.width() / 2);
+			image.offsetY( image.height() / 2);
+			this.meimeiBlue = image;
+		}, (error) =>{console.log(error)});
 
-        console.log("Here");
-        console.log(ruleData);
-        console.log(storyData);
-
-        this.getRules();
-        this.getStory();
+        this.rules = this.getData(ruleData);
+        this.story = this.getData(storyData);
        
 		// Title text
         const title = new Konva.Text({
@@ -69,53 +82,38 @@ export class IntroScene{
 		startText.offsetX(startText.width() / 2);
 		startButtonGroup.add(startButton);
 		startButtonGroup.add(startText);
-		startButtonGroup.on("click", this.onStartClick);
+		startButtonGroup.on("click", this.handleNextClick);
 		this.group.add(startButtonGroup);
-
-		
 	}
-    private onStartClick = () => {
-        console.log('Button clicked!');
-        // Add any other logic you want to perform here
-		this.group.destroyChildren();
-        
-        this.displayStory();
+    private handleNextClick = () => {
+        this.group.destroyChildren();
+        if(this.state == 0){
+            this.displayPage(this.story, "NEXT", this.meimeiRed);
+            this.state = 1;
+        }
+        else if(this.state == 1){
+            this.displayPage(this.rules, "PLAY GAME", this.meimeiBlue);
+        }
         this.layer.add(this.group);
         this.layer.draw();
         this.stage.add(this.layer);
-    };
-    private onNextClick = () => {
-        console.log('Button clicked!');
-        // Add any other logic you want to perform here
-		this.group.destroyChildren();
-        
-        this.displayRules();
-        this.layer.add(this.group);
-        this.layer.draw();
-        this.stage.add(this.layer);
-    };
+    }
 
-
-    getRules(): void{
-        const jsonString = JSON.stringify(ruleData);
+    
+    getData(data: Object):string[]{
+        const jsonString = JSON.stringify(data);
         const parsedData: any = JSON.parse(jsonString);
         const stringArray: string[] = Object.values(parsedData).map(String);
-        this.rules = stringArray;
-        console.log(this.rules);
+        return stringArray;
     }
-    getStory():void{
-        const jsonString = JSON.stringify(storyData);
-        const parsedData: any = JSON.parse(jsonString);
-        const stringArray: string[] = Object.values(parsedData).map(String);
-        this.story = stringArray;
-        console.log(this.story);
-    }
-    displayStory(): void{
-        for(let i = 0; i < this.story.length; i++){
-             const storyText = new Konva.Text({
+
+    
+    displayPage(text:string[], buttonText:string, img:Konva.Image|null):void{
+        for(let i = 0; i < text.length; i++){
+             const pageText = new Konva.Text({
                 x: this.stage.width() / 2,
                 y: 150 + i * 100,
-                text: this.story[i],
+                text: text[i],
                 fontSize: 20,
                 fontFamily: "Arial",
                 fill: "yellow",
@@ -123,17 +121,18 @@ export class IntroScene{
                 strokeWidth: 2,
                 align: "center",
             });
-            console.log(this.story[i]);
             // Center the text using offsetX
-            storyText.offsetX(storyText.width() / 2);
-            this.group.add(storyText);
+            pageText.offsetX(pageText.width() / 2);
+            this.group.add(pageText);
         }
-       
-
+        if(img)
+            this.group.add(img);
+        else{
+            console.log("No image");
+        }
         const nextButtonGroup = new Konva.Group();
 		const nextButton = new Konva.Rect({
-			 x: this.stage.width() / 2 - 100,
-
+			x: this.stage.width() / 2 - 100,
 			y: 600,
 			width: 200,
 			height: 60,
@@ -143,10 +142,9 @@ export class IntroScene{
 			strokeWidth: 3,
 		});
 		const nextText = new Konva.Text({
-			                x: this.stage.width() / 2, 
-
+			x: this.stage.width() / 2, 
 			y: 615,
-			text: "NEXT",
+			text: buttonText,
 			fontSize: 24,
 			fontFamily: "Arial",
 			fill: "black",
@@ -155,58 +153,8 @@ export class IntroScene{
 		nextText.offsetX(nextText.width() / 2);
 		nextButtonGroup.add(nextButton);
 		nextButtonGroup.add(nextText);
-		nextButtonGroup.on("click", this.onNextClick);
+		nextButtonGroup.on("click", this.handleNextClick);
 		this.group.add(nextButtonGroup);
-    }
-    displayRules(): void{
-        for(let i = 0; i < this.rules.length; i++){
-            const ruleText = new Konva.Text({
-            x: this.stage.width() / 2,
-			y: 150 + i * 100,
-			text: this.rules[i],
-			fontSize: 20,
-			fontFamily: "Arial",
-			fill: "yellow",
-			stroke: "orange",
-			strokeWidth: 2,
-			align: "center",
-		});
-		// Center the text using offsetX
-		ruleText.offsetX(ruleText.width() / 2);
-        this.group.add(ruleText);
-
-        }
-        
-        const nextButtonGroup = new Konva.Group();
-		const nextButton = new Konva.Rect({
-			x: this.stage.width() / 2 -100,
-
-			y: 600,
-			width: 200,
-			height: 60,
-			fill: "green",
-			cornerRadius: 10,
-			stroke: "darkgreen",
-			strokeWidth: 3,
-		});
-		const nextText = new Konva.Text({
-			x: this.stage.width() / 2,
-
-			y: 615,
-			text: "PLAY GAME",
-			fontSize: 24,
-			fontFamily: "Arial",
-			fill: "black",
-			align: "center",
-		});
-		nextText.offsetX(nextText.width() / 2);
-		nextButtonGroup.add(nextButton);
-		nextButtonGroup.add(nextText);
-		nextButtonGroup.on("click", this.onNextClick);
-		this.group.add(nextButtonGroup);
-    }
-    handleNextClick(){
-
     }
 
 	/**

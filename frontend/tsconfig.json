@@ -10,5 +10,5 @@
     "noEmit": true, // Or "emitDeclarationOnly": true
      "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src", "custom.d.ts"]
 }
