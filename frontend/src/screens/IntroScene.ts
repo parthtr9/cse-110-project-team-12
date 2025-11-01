@@ -12,6 +12,7 @@ export class IntroScene{
     private state: number;
     private meimeiRed: Konva.Image | null = null;
     private meimeiBlue: Konva.Image | null = null;
+    private background: Konva.Rect;
     
 	//constructor(onStartClick: () => void) {
     constructor(layer:Konva.Layer, stage:Konva.Stage){
@@ -39,6 +40,15 @@ export class IntroScene{
 			image.offsetY( image.height() / 2);
 			this.meimeiBlue = image;
 		}, (error) =>{console.log(error)});
+        this.background = new Konva.Rect({
+            x:0,
+            y:0,
+            width: stage.width(),
+            height: stage.height(),
+            fill: "green"
+        });
+        this.group.add(this.background);
+
 
         this.rules = this.getData(ruleData);
         this.story = this.getData(storyData);
@@ -86,13 +96,15 @@ export class IntroScene{
 		this.group.add(startButtonGroup);
 	}
     private handleNextClick = () => {
+        let red: string = 'rgb(198,56,56)';
+        let blue: string = 'rgb(69, 81, 196)';
         this.group.destroyChildren();
         if(this.state == 0){
-            this.displayPage(this.story, "NEXT", this.meimeiRed);
+            this.displayPage(this.story, "NEXT", this.meimeiRed, red);
             this.state = 1;
         }
         else if(this.state == 1){
-            this.displayPage(this.rules, "PLAY GAME", this.meimeiBlue);
+            this.displayPage(this.rules, "PLAY GAME", this.meimeiBlue, blue);
         }
         this.layer.add(this.group);
         this.layer.draw();
@@ -108,7 +120,9 @@ export class IntroScene{
     }
 
     
-    displayPage(text:string[], buttonText:string, img:Konva.Image|null):void{
+    displayPage(text:string[], buttonText:string, img:Konva.Image|null, bgColor:string):void{
+        this.background.fill(bgColor);
+        this.group.add(this.background);
         for(let i = 0; i < text.length; i++){
              const pageText = new Konva.Text({
                 x: this.stage.width() / 2,
@@ -116,8 +130,8 @@ export class IntroScene{
                 text: text[i],
                 fontSize: 20,
                 fontFamily: "Arial",
-                fill: "yellow",
-                stroke: "orange",
+                fill: "black",
+                stroke: "black",
                 strokeWidth: 2,
                 align: "center",
             });
