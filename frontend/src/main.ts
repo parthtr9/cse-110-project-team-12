@@ -1,4 +1,4 @@
-import Konva from "konva";
+import { initMapView } from "./MapView/MapView";
 
 // first we need to create a stage
 const stage = new Konva.Stage({
