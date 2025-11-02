@@ -5,7 +5,10 @@
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "strict": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "allowImportingTsExtensions": true,
+    "noEmit": true, // Or "emitDeclarationOnly": true
+     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src", "custom.d.ts"]
 }
