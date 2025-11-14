@@ -1,12 +1,17 @@
 export const Scenarios: string[] = [
-    "You are lost at the airport and need to find your transferring flight to",
-    "You need to call the embassy of",
-    "You're buying a souvenir from",
-    "You're looking for the gate to",
-    "You need to find the tourist information desk for",
-    "You're searching for the customs line for",
-    "You want to exchange currency for",
-    "You're looking for a visa application for",
-    "You need to find the baggage claim for",
-    "You're trying to book a hotel in"
+    "Mei Mei is attending a traditional festival in",
+    "Mei Mei is tasting the most famous local dish in",
+    "Mei Mei is visiting a UNESCO World Heritage site in",
+    "Mei Mei is shopping at a popular market in",
+    "Mei Mei is learning about local customs in",
+    "Mei Mei is exploring the capital city of",
+    "Mei Mei is trying to navigate public transportation in",
+    "Mei Mei is attending a local sporting event in",
+    "Mei Mei is visiting a famous museum in",
+    "Mei Mei is looking for a national park or nature reserve in",
+    "Mei Mei is trying to catch a train to another city in",
+    "Mei Mei is attending a cultural performance in",
+    "Mei Mei is visiting a famous landmark in",
+    "Mei Mei is exploring a historic district in",
+    "Mei Mei is trying to find a local specialty in"
 ];
