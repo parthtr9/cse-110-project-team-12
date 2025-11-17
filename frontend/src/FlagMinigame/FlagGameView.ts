@@ -5,6 +5,7 @@ import { FlagGameState } from './types';
 export class FlagGameView {
     private stage: Konva.Stage;
     private layer: Konva.Layer;
+    private overlayLayer: Konva.Layer;
     private width: number;
     private height: number;
 
@@ -19,7 +20,9 @@ export class FlagGameView {
         });
 
         this.layer = new Konva.Layer();
+        this.overlayLayer = new Konva.Layer();
         this.stage.add(this.layer);
+        this.stage.add(this.overlayLayer);
     }
 
     render(
@@ -190,6 +193,129 @@ export class FlagGameView {
         this.layer.add(messageText);
 
         this.layer.draw();
+    }
+
+    showInstructions(onClose: () => void): void {
+        this.overlayLayer.destroyChildren();
+
+        // Semi-transparent background
+        const overlay = new Konva.Rect({
+            x: 0,
+            y: 0,
+            width: this.width,
+            height: this.height,
+            fill: 'rgba(0, 0, 0, 0.7)',
+        });
+        this.overlayLayer.add(overlay);
+
+        // Modal box
+        const modalWidth = 500;
+        const modalHeight = 400;
+        const modalX = (this.width - modalWidth) / 2;
+        const modalY = (this.height - modalHeight) / 2;
+
+        const modal = new Konva.Rect({
+            x: modalX,
+            y: modalY,
+            width: modalWidth,
+            height: modalHeight,
+            fill: '#ffffff',
+            cornerRadius: 10,
+            shadowColor: 'black',
+            shadowBlur: 20,
+            shadowOpacity: 0.3,
+        });
+        this.overlayLayer.add(modal);
+
+        // Title
+        const title = new Konva.Text({
+            x: modalX,
+            y: modalY + 30,
+            width: modalWidth,
+            text: 'Guess the Flag!',
+            fontSize: 28,
+            fontFamily: 'Arial',
+            fill: 'black',
+            align: 'center',
+            fontStyle: 'bold',
+        });
+        this.overlayLayer.add(title);
+
+        // Instructions text
+        const instructions = `Mei Mei is visiting different countries and needs your help identifying their flags! Click on the flag that matches the country Mei Mei is visiting. Good luck!`;
+
+        const instructionsText = new Konva.Text({
+            x: modalX + 40,
+            y: modalY + 90,
+            width: modalWidth - 80,
+            text: instructions,
+            fontSize: 16,
+            fontFamily: 'Arial',
+            fill: '#2c3e50',
+            lineHeight: 1.6,
+        });
+        this.overlayLayer.add(instructionsText);
+
+        // Start button
+        const buttonWidth = 120;
+        const buttonHeight = 40;
+        const buttonX = modalX + (modalWidth - buttonWidth) / 2;
+        const buttonY = modalY + modalHeight - 70;
+
+        const closeButton = new Konva.Rect({
+            x: buttonX,
+            y: buttonY,
+            width: buttonWidth,
+            height: buttonHeight,
+            fill: 'white',
+            cornerRadius: 5,
+            shadowColor: 'black',
+            shadowBlur: 5,
+            shadowOpacity: 0.5,
+        });
+
+        const buttonText = new Konva.Text({
+            x: buttonX,
+            y: buttonY + 12,
+            width: buttonWidth,
+            text: 'Start',
+            fontSize: 16,
+            fontFamily: 'Arial',
+            fill: 'black',
+            align: 'center',
+            fontStyle: 'bold',
+        });
+
+        closeButton.on('mouseenter', () => {
+            closeButton.fill('green');
+            this.overlayLayer.draw();
+            document.body.style.cursor = 'pointer';
+        });
+
+        closeButton.on('mouseleave', () => {
+            closeButton.fill('white');
+            this.overlayLayer.draw();
+            document.body.style.cursor = 'default';
+        });
+
+        closeButton.on('click', () => {
+            this.overlayLayer.destroyChildren();
+            this.overlayLayer.draw();
+            document.body.style.cursor = 'default';
+            onClose();
+        });
+
+        buttonText.on('click', () => {
+            this.overlayLayer.destroyChildren();
+            this.overlayLayer.draw();
+            document.body.style.cursor = 'default';
+            onClose();
+        });
+
+        this.overlayLayer.add(closeButton);
+        this.overlayLayer.add(buttonText);
+
+        this.overlayLayer.draw();
     }
 
     destroy(): void {

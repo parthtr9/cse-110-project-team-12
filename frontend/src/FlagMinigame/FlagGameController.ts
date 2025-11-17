@@ -101,10 +101,11 @@ export class FlagGameController {
         // Show overlay
         this.overlay.style.display = 'flex';
 
-        // Start game
-        this.model.reset();
-        this.gameState = 'playing';
-        this.startNewRound();
+        this.view.showInstructions(() => {
+            this.model.reset();
+            this.gameState = 'playing';
+            this.startNewRound();
+        });
     }
 
     private startNewRound(): void {
