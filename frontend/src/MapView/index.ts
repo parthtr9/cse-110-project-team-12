@@ -3,7 +3,7 @@
 import { MapModel } from "./MapModel";
 import { MapView } from "./MapView";
 import { MapController } from "./MapController";
-import { enableCoordinatePicker } from "../view/coordinatePicker";
+import { enableCoordinatePicker } from "./coordinatePicker";
 
 // Main initialization function
 export async function initMapView(): Promise<void> {

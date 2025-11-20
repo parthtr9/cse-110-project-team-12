@@ -1,6 +1,6 @@
 // MapModel.ts - Handles data and business logic
 
-import { getLocationsForMap } from "../view/locationData";
+import { getLocationsForMap } from "./locationData";
 
 // Interface for clicked locations
 export interface ClickedLocation {
