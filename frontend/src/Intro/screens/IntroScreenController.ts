@@ -1,7 +1,7 @@
 import Konva from "konva";
 import ruleData from "../Data/rules.json";
 import storyData from '../Data/story.json';
-import { IntroScreenModel } from "./IntroScreenModel";
+import IntroScreenModel from "./IntroScreenModel";
 import { IntroScreenView } from "./IntroScreenView";
 
 export class IntroScreenController {

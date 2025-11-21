@@ -1,14 +1,15 @@
-
-export class IntroScreenModel{
+export default class IntroScreenModel {
     private state: number;
 
-    constructor(){
+    constructor() {
         this.state = 0;
     }
-    getState(): number{
+
+    getState(): number {
         return this.state;
     }
-    setState(num: number): void{
+
+    setState(num: number): void {
         this.state = num;
     }
 }
