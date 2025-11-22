@@ -1,4 +1,8 @@
 import Konva from 'konva';
+import badge1 from './badges/badge1.png'
+import badge2 from './badges/badge2.png'
+import badge3 from './badges/badge3.png'
+import badge4 from './badges/badge4.png'
 
 export class CompletionView {
     private layer: Konva.Layer;
@@ -15,15 +19,15 @@ export class CompletionView {
         });
     }
 
-    private getBadgeInfo(days: number): { rank: string; color: string; message: string } {
+    private getBadgeImagePath(days: number): string {
         if (days <= 10) {
-            return { rank: 'A', color: '#3498db', message: 'Faster than Grandma!' };
+            return badge1;
         } else if (days <= 15) {
-            return { rank: 'B', color: '#2ecc71', message: '!' };
+            return badge2;
         } else if (days <= 20) {
-            return { rank: 'C', color: '#e67e22', message: 'Good Effort!' };
+            return badge3;
         } else {
-            return { rank: 'D', color: '#95a5a6', message: 'Journey Complete!' };
+            return badge4;
         }
     }
 
@@ -35,7 +39,7 @@ export class CompletionView {
 
         const width = this.stage.width();
         const height = this.stage.height();
-        const badge = this.getBadgeInfo(daysTravelled);
+        const badgeImagePath = this.getBadgeImagePath(daysTravelled);
 
         const background = new Konva.Rect({
             x: 0,
@@ -63,10 +67,10 @@ export class CompletionView {
         // Days travelled display
         const daysLabel = new Konva.Text({
             x: 0,
-            y: height * 0.25,
+            y: height * 0.35,
             width: width,
             text: 'Days Travelled',
-            fontSize: 24,
+            fontSize: 32,
             fontFamily: 'Arial',
             fill: '#7f8c8d',
             align: 'center',
@@ -75,56 +79,34 @@ export class CompletionView {
 
         const daysValue = new Konva.Text({
             x: 0,
-            y: height * 0.25 + 40,
+            y: height * 0.35 + 60,
             width: width,
             text: `${daysTravelled}`,
             fontSize: 72,
             fontFamily: 'Arial',
-            fill: '#667eea',
+            fill: 'black',
             align: 'center',
             fontStyle: 'bold',
         });
         this.group.add(daysValue);
 
-        const badgeY = height * 0.5;
-        const badgeRadius = 80;
+        // Badge Image
+        const badgeY = height * 0.60;
+        const badgeSize = 160;
 
-        const badgeCircle = new Konva.Circle({
-            x: width / 2,
-            y: badgeY,
-            radius: badgeRadius,
-            fill: badge.color,
-            shadowColor: 'rgba(0, 0, 0, 0.3)',
-            shadowBlur: 20,
-            shadowOffset: { x: 0, y: 5 },
-        });
-        this.group.add(badgeCircle);
-
-        const badgeRank = new Konva.Text({
-            x: width / 2 - badgeRadius,
-            y: badgeY - 35,
-            width: badgeRadius * 2,
-            text: badge.rank,
-            fontSize: 72,
-            fontFamily: 'Arial',
-            fill: '#ffffff',
-            align: 'center',
-            fontStyle: 'bold',
-        });
-        this.group.add(badgeRank);
-
-        const badgeMessage = new Konva.Text({
-            x: 0,
-            y: badgeY + badgeRadius + 20,
-            width: width,
-            text: badge.message,
-            fontSize: 28,
-            fontFamily: 'Arial',
-            fill: badge.color,
-            align: 'center',
-            fontStyle: 'bold',
-        });
-        this.group.add(badgeMessage);
+        const imageObj = new Image();
+        imageObj.onload = () => {
+            const badgeImage = new Konva.Image({
+                x: width / 2 - badgeSize / 2,
+                y: badgeY - badgeSize / 2,
+                image: imageObj,
+                width: badgeSize,
+                height: badgeSize,
+            });
+            this.group.add(badgeImage);
+            this.layer.draw();
+        };
+        imageObj.src = badgeImagePath;
 
         // Play Again button
         const buttonWidth = 300;
@@ -137,7 +119,7 @@ export class CompletionView {
             y: buttonY,
             width: buttonWidth,
             height: buttonHeight,
-            fill: '#667eea',
+            fill: 'green',
             cornerRadius: 35,
             shadowColor: 'rgba(102, 126, 234, 0.4)',
             shadowBlur: 15,
@@ -158,13 +140,13 @@ export class CompletionView {
 
         playAgainBtn.on('mouseenter', () => {
             document.body.style.cursor = 'pointer';
-            playAgainBtn.fill('#764ba2');
+            playAgainBtn.fill('#4ba34b');
             this.layer.draw();
         });
 
         playAgainBtn.on('mouseleave', () => {
             document.body.style.cursor = 'default';
-            playAgainBtn.fill('#667eea');
+            playAgainBtn.fill('green');
             this.layer.draw();
         });
 
