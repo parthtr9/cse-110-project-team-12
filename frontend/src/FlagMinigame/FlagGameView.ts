@@ -144,7 +144,7 @@ export class FlagGameView {
         this.layer.draw();
     }
 
-    showFinishScreen(score: number, totalRounds: number): void {
+    showFinishScreen(score: number, totalRounds: number, topScores: number[]): void {
         this.layer.destroyChildren();
 
         const bg = new Konva.Rect({
@@ -156,19 +156,21 @@ export class FlagGameView {
         });
         this.layer.add(bg);
 
+        const percentage = Math.round((score / totalRounds) * 100);
+
         const scoreText = new Konva.Text({
             x: 50,
             y: 250,
             width: this.width - 100,
-            text: `Score: ${score}/${totalRounds}`,
+            text: `Score: ${percentage}%`,
             fontSize: 36,
             fontFamily: 'Arial',
             fill: '#667eea',
             align: 'center',
         });
+
         this.layer.add(scoreText);
 
-        const percentage = Math.round((score / totalRounds) * 100);
         let message = '';
         if (percentage === 100)
             message = '🎉 Mei Mei is amazed!';
@@ -178,7 +180,6 @@ export class FlagGameView {
             message = '👍 Mei Mei gives you a nod of approval.';
         else
             message = '😢 Mei Mei is disappointed...';
-
 
         const messageText = new Konva.Text({
             x: 50,
@@ -193,6 +194,48 @@ export class FlagGameView {
         this.layer.add(messageText);
 
         this.layer.draw();
+
+        setTimeout(() => {
+            // Clear previous content
+            this.layer.destroyChildren();
+
+            // Re-add background
+            this.layer.add(bg);
+
+            const topScoresTitle = new Konva.Text({
+                x: 50,
+                y: 100,
+                width: this.width - 100,
+                text: 'Top Scores',
+                fontSize: 32,
+                fontFamily: 'Arial',
+                fill: '#2c3e50',
+                align: 'center',
+                fontStyle: 'bold',
+            });
+            this.layer.add(topScoresTitle);
+
+            const startY = 180;
+
+            topScores.forEach((topScore, index) => {
+                const scorePercentage = Math.round((topScore / totalRounds) * 100);
+
+                const scoreRank = new Konva.Text({
+                    x: this.width / 2 - 100,
+                    y: startY + index * 45,
+                    width: 200,
+                    text: `${index + 1}. ${scorePercentage}%`,
+                    fontSize: 28,
+                    fontFamily: 'Arial',
+                    fill: '#7f8c8d',
+                    align: 'center',
+                    fontStyle: 'normal',
+                });
+                this.layer.add(scoreRank);
+            });
+
+            this.layer.draw();
+        }, 2000);
     }
 
     showInstructions(onClose: () => void): void {
