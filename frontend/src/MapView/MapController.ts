@@ -94,6 +94,7 @@ export class MapController {
 
   // Handle clicks on the map
   private handleMapClick(clickX: number, clickY: number): void {
+
     // Convert click coordinates from displayed space to original image space
     const originalClick = this.view.unscaleCoordinates({ x: clickX, y: clickY });
 
@@ -125,21 +126,23 @@ export class MapController {
 
     // Show appropriate message
     if (wasCorrect) {
+      this.view.hideHintCircle();
       this.correctBuzzer.play();
 		  this.correctBuzzer.currentTime = 0;
-      if(this.model.days == 0){
-        this.model._daysTraveled += 1;
-      }
-      else{
-        this.model._daysTraveled += this.model.days;
-      }
-      this.model.days = 0;
+      this.model._daysTraveled += this.model.days;
+      this.model.days = 1;
       this.showSuccessMessage();
-    } else {
+    } 
+    else {
+      this.view.hideHintCircle();
       this.wrongBuzzer.play();
       this.wrongBuzzer.currentTime = 0;
       this.model.days++;
       this.showIncorrectMessage();
+
+      if(this.model.days >= 3){
+        this.view.showHintCircle();
+      }
     }
 
     this.view.draw();

@@ -1,6 +1,12 @@
 // MapView.ts - Handles UI rendering with Konva
 
 import Konva from "konva";
+import nAmericaMapSrc from "../public/namerica_map.jpg";
+import sAmericaMapSrc from "../public/samerica_map.jpg";
+import europeMapSrc from "../public/europe_map.jpg";
+import africaMapSrc from "../public/africa_map.jpg";
+import asiaMapSrc from "../public/asia_map.jpg";
+import australiaMapSrc from "../public/australia_map.jpg";
 import worldMapImageSrc from "../public/world_map.jpg";
 import { MapModel, Location } from "./MapModel";
 
@@ -90,6 +96,50 @@ export class MapView {
       node.name() === "targetLocation"
     );
     markers.forEach((node) => node.destroy());
+    this.layer.draw();
+  }
+
+  showHintCircle(): void{
+    const location = this.scaleCoordinates(this.model.correctLocation);
+    let radial: number = 125;
+    let dist: number = 6;
+    if(this.model.days >= 9){
+      radial = 25;
+      dist = 2;
+    }
+    else if(this.model.days >= 6){
+      radial = 50;
+      dist = 3;
+    }
+    else if(this.model.days == 5){
+      radial = 75;
+      dist = 4.5;
+    }
+    else if(this.model.days == 4){
+      radial = 100;
+      dist = 5.5;
+    }
+
+    const randomX = location.x + Math.floor(Math.random() * (radial - 1)) * (Math.round(Math.random()) * 2-1);
+    const randomY = location.y + Math.floor(Math.random() * (radial - 1)) * (Math.round(Math.random()) * 2-1);
+    const hintCircle = new Konva.Circle({
+      x: randomX,
+      y: randomY,
+      radius: this.model.clickTolerance * this.calculateImageScale() * dist,
+      stroke: "yellow",
+      strokeWidth: 2,
+      name: "hintCircle",
+    });
+
+    this.layer.add(hintCircle);
+    this.layer.draw();
+  }
+
+  hideHintCircle(): void{
+    const found = this.layer.find((node: Konva.Node) =>
+      node.name() === "hintCircle"
+    );
+    found.forEach((node) => node.destroy());
     this.layer.draw();
   }
 

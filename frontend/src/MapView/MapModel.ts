@@ -19,7 +19,7 @@ export interface Location {
 export class MapModel {
   // Game state
   public _daysTraveled: number = 0;
-  public days: number = 0;
+  public days: number = 1;
   private _hint: string = "";
   private _city: string = "";
   private _country: string = "";
@@ -27,7 +27,7 @@ export class MapModel {
   // Current location tracking
   private _currentLocationIndex: number = 0;
   private _currentLocationId: string | null = null;
-  private _mapType: "worldMap" | "continentMap" = "worldMap";
+  public _mapType: "worldMap" | "continentMap" = "worldMap";
 
   // Target location and tolerance
   private _correctLocation: Location = { x: 0, y: 0 };
@@ -39,6 +39,7 @@ export class MapModel {
   // UI state flags
   private _messageBoxVisible: boolean = false;
   private _showingTravelPath: boolean = false;
+  private _mapSwitch: boolean = false;
 
   constructor() {
     // Initialize with the first location
@@ -94,6 +95,10 @@ export class MapModel {
     return this._mapType;
   }
 
+  get mapSwitch(): boolean{
+    return this._mapSwitch;
+  }
+
   // Setters
   set messageBoxVisible(value: boolean) {
     this._messageBoxVisible = value;
@@ -107,6 +112,10 @@ export class MapModel {
     this._mapType = value;
     // Reinitialize current location with new map type
     this.initializeLocation(this._currentLocationIndex);
+  }
+
+  set mapSwitch(value: boolean){
+    this._mapSwitch = value;
   }
 
   // Initialize or update the current location
