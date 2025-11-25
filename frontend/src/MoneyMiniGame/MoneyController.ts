@@ -1,224 +1,143 @@
 import Konva from "konva";
-
+import { MoneyView } from "./MoneyView";
+import { MoneyModel } from "./MoneyModel";
+import { TIME_LIMIT, WIDTH, HEIGHT } from "./constants";
 
 export class MoneyController {
-	private group: Konva.Group;
-	private boxMeiMei: Konva.Image | Konva.Circle | null = null;
-	private scoreText: Konva.Text;
-	private timerText: Konva.Text;
-    private stage : Konva.Stage;
-    private layer: Konva.Layer;
-    private gameTimer: number | null = null;
-    private moneyGroup : Array<Konva.Circle>;
-    private boxGroup : Array<Konva.Rect>;
+	
+    private gameTimer: number |NodeJS.Timeout| null = null;
+    private anim: Konva.Animation;
+    private view: MoneyView;
+    private model: MoneyModel;
+    private overlay: HTMLDivElement;
+    private modalContainer: HTMLDivElement;
+    private closeBtn : HTMLButtonElement;
 
+	constructor() {
 
-	constructor(stage: Konva.Stage, layer: Konva.Layer, width: number = 800, height: number = 600) {
-		this.group = new Konva.Group({ visible: false });
-        this.stage = stage;
-        this.layer = layer;
-        this.moneyGroup = [];
-        this.boxGroup = [];
-		// Background
-		const bg = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: width,
-			height: height,
-			fill: "#87CEEB", // Sky blue
-		});
-		//this.group.add(bg);
+        // Create overlay and modal
+        this.overlay = this.createOverlay();
+        this.modalContainer = document.createElement("div");
+        this.closeBtn = document.createElement("button");
+        this.createModal();
+        //this.modalContainer = this.createModal();
+        var layer= new Konva.Layer();
+        var stage = new Konva.Stage({
+            container: this.modalContainer as HTMLDivElement,
+            width: WIDTH,
+            height: HEIGHT,
+        });
 
-		// Score display (top-left)
-		this.scoreText = new Konva.Text({
-			x: 20,
-			y: 20,
-			text: "Score: 0",
-			fontSize: 32,
-			fontFamily: "Arial",
-			fill: "black",
-		});
-		this.group.add(this.scoreText);
+        this.anim = new Konva.Animation((frame)=>{
+            const time = frame.time;
+            const timeDiff = frame.timeDiff;
+            const frameRate = frame.frameRate;
 
-		// Timer display (top-right)
-		this.timerText = new Konva.Text({
-			x: width - 150,
-			y: 20,
-			text: "Time: 60",
-			fontSize: 32,
-			fontFamily: "Arial",
-			fill: "red",
-		});
-		this.group.add(this.timerText);
-
-		// TODO: Task 2 - Load and display lemon image using Konva.Image.fromURL()
-		// Placeholder circle (remove this when implementing the image)
-		Konva.Image.fromURL("./src/MoneyMiniGame/Data/BoxMeiMei.png", (image) => {
-			image.x(width / 2);
-			image.y(width / 2);
-			image.offsetX( image.width() / 2);
-			image.offsetY( image.height() / 2);
-            image.draggable(true);
-            image.height(image.height()/2);
-            image.width(image.width()/2);
-			//image.on("click", onLemonClick);
-            image.on("dragmove", (e) =>{
-                // var target = e.target;
-                // var r2 = e.target.getClientRect();
-                var r1 = image;
-                for(let i = 0; i < this.boxGroup.length; i++){
-                    let r2 = this.boxGroup[i];               // if(this.haveIntersection(this, targetRect)){
-                    if(r2.x() > r1.x() + r1.width() ||
-                        r2.x() + r2.width() < r1.x() ||
-                        r2.y() > r1.y() + r1.height() ||
-                        r2.y() + r2.height() < r1.y()){
-                            console.log("Collision")
-                    }
-                 }
-            });
-			
-            // image.on('dragmove', function (e) {
-            //     var target = e.target;
-            //     var targetRect = e.target.getClientRect();
-            //     layer.children.forEach(function (group) {
-            //         // do not check intersection with itself
-            //         if (group === target) {
-            //         return;
-            //         }
-            //         if (haveIntersection(group.getClientRect(), targetRect)) {
-            //         group.findOne('.fillShape').fill('red');
-            //         } else {
-            //         group.findOne('.fillShape').fill('grey');
-            //         }
-            //     });
-            // });
-
-            this.boxMeiMei = image;
-			this.group.add(this.boxMeiMei);
-            console.log("Image exists");
-		});
-        console.log("constructor");
-        this.startTimer();
-
-        const anim = new Konva.Animation((frame)=>{
-        const time = frame.time;
-        const timeDiff = frame.timeDiff;
-        const frameRate = frame.frameRate;
-
-        if(time % 4 == 0){
-            this.addMoneyImg();
-        }
-
-       
-       this.updateY();
+            if(time % 4 == 0){
+                this.view.addMoneyImg();
+            }
+            let col = this.view.handleCollision();
+            this.model.incrementScore(col);
+            this.view.updateScore(this.model.getScore());
+        
+            this.view.updateY();
 
         
         }, layer);
+        this.view = new MoneyView(this.handleNextClick, stage, layer, WIDTH, HEIGHT);
+        this.model = new MoneyModel();
 
-        anim.start();
-
-
-        // this.layer.on('dragmove',  (e) => {
-        //     var target = e.target;
-        //     var targetRect = e.target.getClientRect();
-        //     this.layer.children.forEach( (group) => {
-        //         // do not check intersection with itself
-        //         if (group === target) {
-        //         return;
-        //         }
-        //         if (this.haveIntersection(group.getClientRect(), targetRect)) {
-        //             //group.findOne('.fillShape').fill('red');
-        //             console.log("Collision");
-        //         } else {
-        //             //group.findOne('.fillShape').fill('grey');
-        //         }
-        //     });
-        // });
-	
 	}
-    haveIntersection(r1: Konva.Image, r2:Konva.Rect): boolean {
-    return !(
-        r2.x() > r1.x() + r1.width() ||
-        r2.x() + r2.width() < r1.x() ||
-        r2.y() > r1.y() + r1.height() ||
-        r2.y() + r2.height() < r1.y()
-    );
-    }
-    updateY():void{
-        for(let i = 0; i < this.moneyGroup.length; i++){
-            this.moneyGroup[i].y(this.moneyGroup[i].y() + 4);
-            this.boxGroup[i].y(this.boxGroup[i].y() + 4);
-        }
-        // this.moneyGroup.forEach((circle) =>{
-        //     circle.y(circle.y() + 4);
-        // });
-    }
+    private createOverlay(): HTMLDivElement {
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        overlay.style.display = 'none';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.zIndex = '9999';
 
-	/**
-	 * Update score display
-	 */
-	updateScore(score: number): void {
-		this.scoreText.text(`Score: ${score}`);
-		this.group.getLayer()?.draw();
-	}
-    addMoneyImg() : void{
-        var circle = new Konva.Circle({
-          x: Math.random() * (this.stage.width() - 10) + 10,
-          //y: this.stage.height(),
-          y:0,
-          radius: 10,
-          fill: "yellow",
-          stroke: "black",
-          strokeWidth: 4,
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                this.destroy();
+            }
         });
-        this.moneyGroup.push(circle);
-        this.group.add(circle);
 
-        var boundingBox = circle.getClientRect({ relativeTo: this.group });
-        var box = new Konva.Rect({
-            x: boundingBox.x,
-            y: boundingBox.y,
-            width: boundingBox.width,
-            height: boundingBox.height,
-            stroke: 'red',
-            strokeWidth: 1,
+        return overlay;
+    }
+
+    private createModal(): void {
+        this.modalContainer = document.createElement('div');
+        this.modalContainer.style.backgroundColor = 'white';
+        this.modalContainer.style.borderRadius = '20px';
+        this.modalContainer.style.padding = '20px';
+        this.modalContainer.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+        this.modalContainer.style.position = 'relative';
+
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = 'x';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '100px';
+        closeBtn.style.right = '300px';
+        closeBtn.style.background = 'red';
+        closeBtn.style.border = 'none';
+        closeBtn.style.fontSize = '30px';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.color = 'black';
+        closeBtn.style.lineHeight = '1';
+        closeBtn.style.padding = '0';
+        closeBtn.style.width = '30px';
+        closeBtn.style.height = '30px';
+        closeBtn.style.visibility = "visible";
+
+
+        // closeBtn.addEventListener('mouseenter', () => {
+        //     closeBtn.style.color = '#333';
+        // });
+        // closeBtn.addEventListener('mouseleave', () => {
+        //     closeBtn.style.color = 'red';
+        // });
+        closeBtn.addEventListener('click', () => {
+            this.destroy();
         });
-        this.group.add(box);
-        this.boxGroup.push(box);
-       
+        this.closeBtn = closeBtn;
+        //this.modalContainer.append(closeBtn);
+        //document.body.appendChild(closeBtn);
+
+        //this.modalContainer.appendChild(closeBtn);
+        //return modal;
     }
+    startGame(): void{
+        // Reset model state
+		this.model.reset();
 
+        // Add to DOM
+        document.body.appendChild(this.overlay);
+        this.overlay.appendChild(this.modalContainer);
+        document.body.appendChild(this.closeBtn);
 
-	/**
-	 * Update timer display
-	 */
-	updateTimer(timeRemaining: number): void {
-		this.timerText.text(`Time: ${timeRemaining}`);
-		this.group.getLayer()?.draw();
-	}
-    updateMoney():void{
-       // this.moneyGroup
+        // Show overlay
+        this.overlay.style.display = 'flex';
+
+		// Update view
+        this.view.displayIntro();
+		this.view.show();
+
     }
-
-	/**
-	 * Show the screen
-	 */
-	show(): void {
-		this.group.visible(true);
-		this.group.getLayer()?.draw();
-	}
-
-	/**
-	 * Hide the screen
-	 */
-	hide(): void {
-		this.group.visible(false);
-		this.group.getLayer()?.draw();
-	}
-
-	getGroup(): Konva.Group {
-		return this.group;
-	}
+    private handleNextClick = () => {
+        this.view.updateScore(this.model.getScore());
+		this.view.updateTimer(TIME_LIMIT);
+        this.view.displayGame();
+        this.startTimer();
+        this.anim.start();
+    }
+   
     private stopTimer(): void {
 		// TODO: Task 3 - Stop the timer using clearInterval
 		if(this.gameTimer){
@@ -228,12 +147,10 @@ export class MoneyController {
 	}
     private startTimer(): void {
 		// TODO: Task 3 - Implement countdown timer using setInterval
-		let timeRemaining : number =  30;
+		let timeRemaining : number =  TIME_LIMIT;
 		const timerId = setInterval(() => {
-			//console.log("This runs every 1000ms");
-            //this.addMoneyImg();
 			timeRemaining--;
-			this.updateTimer(timeRemaining);
+			this.view.updateTimer(timeRemaining);
 			if(timeRemaining < 0){
 				this.endGame();
 			}
@@ -243,11 +160,22 @@ export class MoneyController {
 	}
     private endGame(): void {
 		this.stopTimer();
-
-		// Switch to results screen with final score
-		// this.screenSwitcher.switchToScreen({
-		// 	type: "result",
-		// 	score: this.model.getScore(),
-		// });
+        this.anim.stop();
+        this.view.displayEndScreen(this.model.getScore());
 	}
+    getView(): MoneyView {
+        return this.view;
+    }
+    destroy(): void {
+        this.view.destroy();
+
+        // Remove from DOM
+        if (this.overlay.parentNode) {
+            this.overlay.parentNode.removeChild(this.overlay);
+        }
+        if(this.closeBtn.parentNode){
+            this.closeBtn.parentNode.removeChild(this.closeBtn);
+        }
+    }
+
 }

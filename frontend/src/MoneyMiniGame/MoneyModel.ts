@@ -10,10 +10,10 @@ export class MoneyModel{
 	}
 
 	/**
-	 * Increment score when lemon is clicked
+	 * Increment score when based on value passed
 	 */
-	incrementScore(): void {
-		this.score++;
+	incrementScore(incr : number = 1): void {
+		this.score+= incr;
 	}
 
 	/**
