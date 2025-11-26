@@ -18,6 +18,7 @@ export class MapView {
   private originalImageWidth: number = 0;
   private originalImageHeight: number = 0;
   private worldMapImage: Konva.Image | null = null;
+  public nonGame: boolean = false;
 
   constructor(containerId: string, model: MapModel) {
     this.model = model;
@@ -42,6 +43,7 @@ export class MapView {
     await this.loadWorldMap();
     // Show target location marker for debugging
     this.showTargetLocation();
+    this.addInstructions();
   }
 
   // Show target location marker (for debugging - shows where the game thinks the location is)
@@ -101,7 +103,7 @@ export class MapView {
 
   showHintCircle(): void{
     const location = this.scaleCoordinates(this.model.correctLocation);
-    let radial: number = 125;
+    let radial: number = 50;
     let dist: number = 6;
     if(this.model.days >= 9){
       radial = 25;
@@ -112,11 +114,9 @@ export class MapView {
       dist = 3;
     }
     else if(this.model.days == 5){
-      radial = 75;
       dist = 4.5;
     }
     else if(this.model.days == 4){
-      radial = 100;
       dist = 5.5;
     }
 
@@ -489,6 +489,60 @@ export class MapView {
     return { background, text, buttonBackground, buttonText };
   }
 
+  private addInstructions(): void{
+    const inButton = new Konva.Group;
+    const inBack = new Konva.Rect({
+      x: this.stage.width() - 250,
+      y: 70,
+      width: 100,
+      height: 40,
+      fill: "red",
+      cornerRadius: 10,
+      stroke: "black",
+      strokeWidth: 3,
+    });
+    const inText = new Konva.Text({
+      x: this.stage.width()-230,
+      y: 80,
+      text: "Instructions",
+      fontSize: 13,
+      fontFamily: "Arial",
+      fill: "white",
+      align: "center",
+    })
+    inButton.add(inBack);
+    inButton.add(inText);
+    this.layer.add(inButton);
+    inButton.moveToTop();
+    this.layer.draw();
+
+    inBack.on("click", () => {
+      this.nonGame = true;
+    });
+    inText.on("click", () => {
+      this.nonGame = true;
+    });
+
+  }
+
+  createInstructionsMessage(): Konva.Group{
+    const instMessage = new Konva.Group({
+      name: "messageBox",
+    });
+    const inst = "To play the map game, click on a point in the map to guess where this mystery location is! After your first 2 attempts, a yellow circle will appear as a hint! Your location is inside of that circle. After clicking on the correct location, a message will appear congratulating then you need to click on the red \"Continue\" button and you can continue playing the game!";
+    const { background, text, buttonBackground, buttonText } = this.createMessageBox(inst);
+    instMessage.add(background);
+    instMessage.add(text);
+    instMessage.add(buttonBackground);
+    instMessage.add(buttonText);
+    this.nonGame = false;
+    return instMessage;
+  }
+
+  instructionsHide(): void{
+
+  }
+
   // Remove existing markers from the layer
   removeMarkers(): void {
     const markers = this.layer.find((node: Konva.Node) => node.name() === "marker");
@@ -615,7 +669,6 @@ export class MapView {
     this.layer.add(buttonText);
     buttonBackground.moveToTop();
     buttonText.moveToTop();
-    
     this.layer.draw();
   }
 

@@ -34,6 +34,13 @@ export class MapController {
     const pointerPos = this.view.getStage().getPointerPosition();
     if (!pointerPos) return;
 
+
+    // Handle Instructions button
+    if(this.view.nonGame){
+      this.showInstructions();
+      return;
+    }
+
     // Handle travel path scene
     if (this.model.showingTravelPath) {
       this.handleTravelPathClick(e);
@@ -158,6 +165,13 @@ export class MapController {
   // Show incorrect message
   private showIncorrectMessage(): void {
     const messageBox = this.view.createIncorrectMessage();
+    this.view.addShape(messageBox);
+    this.model.messageBoxVisible = true;
+  }
+
+  // show instructions
+  private showInstructions(): void{
+    const messageBox = this.view.createInstructionsMessage();
     this.view.addShape(messageBox);
     this.model.messageBoxVisible = true;
   }
