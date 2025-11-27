@@ -1,6 +1,12 @@
 // MapView.ts - Handles UI rendering with Konva
 
 import Konva from "konva";
+import nAmericaMapSrc from "../public/namerica_map.jpg";
+import sAmericaMapSrc from "../public/samerica_map.jpg";
+import europeMapSrc from "../public/europe_map.jpg";
+import africaMapSrc from "../public/africa_map.jpg";
+import asiaMapSrc from "../public/asia_map.jpg";
+import australiaMapSrc from "../public/australia_map.jpg";
 import worldMapImageSrc from "../public/world_map.jpg";
 import { MapModel, Location } from "./MapModel";
 
@@ -9,6 +15,10 @@ export class MapView {
   private stage: Konva.Stage;
   private layer: Konva.Layer;
   private model: MapModel;
+  private originalImageWidth: number = 0;
+  private originalImageHeight: number = 0;
+  private worldMapImage: Konva.Image | null = null;
+  public nonGame: boolean = false;
 
   constructor(containerId: string, model: MapModel) {
     this.model = model;
@@ -23,6 +33,9 @@ export class MapView {
     // Create layer
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
+
+    // Handle window resize
+    window.addEventListener("resize", () => this.handleResize());
   }
 
   // Initialize the map view
@@ -30,6 +43,7 @@ export class MapView {
     await this.loadWorldMap();
     // Show target location marker for debugging
     this.showTargetLocation();
+    this.addInstructions();
   }
 
   // Show target location marker (for debugging - shows where the game thinks the location is)
@@ -37,11 +51,15 @@ export class MapView {
     const target = this.model.correctLocation;
     const tolerance = this.model.clickTolerance;
     
+    // Scale coordinates to match current image size
+    const scaledTarget = this.scaleCoordinates(target);
+    const scaledTolerance = tolerance * this.calculateImageScale();
+    
     // Draw a circle showing the target area
     const targetCircle = new Konva.Circle({
-      x: target.x,
-      y: target.y,
-      radius: tolerance,
+      x: scaledTarget.x,
+      y: scaledTarget.y,
+      radius: scaledTolerance,
       stroke: "red",
       strokeWidth: 2,
       dash: [5, 5],
@@ -50,8 +68,8 @@ export class MapView {
 
     // Draw center point
     const centerPoint = new Konva.Circle({
-      x: target.x,
-      y: target.y,
+      x: scaledTarget.x,
+      y: scaledTarget.y,
       radius: 5,
       fill: "red",
       name: "targetLocation",
@@ -59,8 +77,8 @@ export class MapView {
 
     // Add label
     const label = new Konva.Text({
-      x: target.x + tolerance + 5,
-      y: target.y - 10,
+      x: scaledTarget.x + scaledTolerance + 5,
+      y: scaledTarget.y - 10,
       text: `${this.model.city}\n(${target.x}, ${target.y})`,
       fontSize: 12,
       fontFamily: "Arial",
@@ -83,6 +101,48 @@ export class MapView {
     this.layer.draw();
   }
 
+  showHintCircle(): void{
+    const location = this.scaleCoordinates(this.model.correctLocation);
+    let radial: number = 50;
+    let dist: number = 6;
+    if(this.model.days >= 9){
+      radial = 25;
+      dist = 2;
+    }
+    else if(this.model.days >= 6){
+      radial = 50;
+      dist = 3;
+    }
+    else if(this.model.days == 5){
+      dist = 4.5;
+    }
+    else if(this.model.days == 4){
+      dist = 5.5;
+    }
+
+    const randomX = location.x + Math.floor(Math.random() * (radial - 1)) * (Math.round(Math.random()) * 2-1);
+    const randomY = location.y + Math.floor(Math.random() * (radial - 1)) * (Math.round(Math.random()) * 2-1);
+    const hintCircle = new Konva.Circle({
+      x: randomX,
+      y: randomY,
+      radius: this.model.clickTolerance * this.calculateImageScale() * dist,
+      stroke: "yellow",
+      strokeWidth: 2,
+      name: "hintCircle",
+    });
+
+    this.layer.add(hintCircle);
+    this.layer.draw();
+  }
+
+  hideHintCircle(): void{
+    const found = this.layer.find((node: Konva.Node) =>
+      node.name() === "hintCircle"
+    );
+    found.forEach((node) => node.destroy());
+    this.layer.draw();
+  }
+
   // Get the stage for event handling
   getStage(): Konva.Stage {
     return this.stage;
@@ -100,15 +160,25 @@ export class MapView {
       imageObj.src = worldMapImageSrc;
 
       imageObj.onload = () => {
-        const worldMap = new Konva.Image({
-          x: 0,
-          y: 0,
+        // Store original image dimensions
+        this.originalImageWidth = imageObj.width;
+        this.originalImageHeight = imageObj.height;
+
+        // Calculate scale to fit window while maintaining aspect ratio
+        const scale = this.calculateImageScale();
+        const position = this.calculateImagePosition(scale);
+
+        // Create image with scaled dimensions, centered
+        this.worldMapImage = new Konva.Image({
+          x: position.x,
+          y: position.y,
           image: imageObj,
-          width: this.stage.width(),
-          height: this.stage.height(),
+          width: this.originalImageWidth * scale,
+          height: this.originalImageHeight * scale,
+          name: "worldMap",
         });
 
-        this.layer.add(worldMap);
+        this.layer.add(this.worldMapImage);
         this.renderDaysTraveledText();
         this.layer.draw();
         resolve();
@@ -119,6 +189,93 @@ export class MapView {
         reject(error);
       };
     });
+  }
+
+  // Calculate scale factor to fit image in window while maintaining aspect ratio
+  private calculateImageScale(): number {
+    if (this.originalImageWidth === 0 || this.originalImageHeight === 0) {
+      return 1;
+    }
+
+    const stageWidth = this.stage.width();
+    const stageHeight = this.stage.height();
+    
+    const scaleX = stageWidth / this.originalImageWidth;
+    const scaleY = stageHeight / this.originalImageHeight;
+    
+    // Use the smaller scale to ensure image fits entirely
+    return Math.min(scaleX, scaleY);
+  }
+
+  // Calculate centered position for the image
+  private calculateImagePosition(scale: number): { x: number; y: number } {
+    const scaledWidth = this.originalImageWidth * scale;
+    const scaledHeight = this.originalImageHeight * scale;
+    const stageWidth = this.stage.width();
+    const stageHeight = this.stage.height();
+
+    return {
+      x: (stageWidth - scaledWidth) / 2,
+      y: (stageHeight - scaledHeight) / 2,
+    };
+  }
+
+  // Handle window resize
+  private handleResize(): void {
+    this.stage.width(window.innerWidth);
+    this.stage.height(window.innerHeight);
+
+    if (this.worldMapImage && this.originalImageWidth > 0) {
+      const scale = this.calculateImageScale();
+      const position = this.calculateImagePosition(scale);
+      
+      this.worldMapImage.width(this.originalImageWidth * scale);
+      this.worldMapImage.height(this.originalImageHeight * scale);
+      this.worldMapImage.x(position.x);
+      this.worldMapImage.y(position.y);
+      
+      // Redraw target location marker if it exists
+      const existingTarget = this.layer.find((node: Konva.Node) => 
+        node.name() === "targetLocation"
+      );
+      if (existingTarget.length > 0) {
+        existingTarget.forEach((node) => node.destroy());
+        this.showTargetLocation();
+      }
+      
+      // Redraw everything
+      this.layer.draw();
+    }
+  }
+
+  // Convert coordinates from original image space to current displayed space
+  scaleCoordinates(location: Location): Location {
+    if (this.originalImageWidth === 0 || !this.worldMapImage) {
+      return location;
+    }
+
+    const scale = this.calculateImageScale();
+    const position = this.calculateImagePosition(scale);
+    
+    return {
+      x: location.x * scale + position.x,
+      y: location.y * scale + position.y,
+    };
+  }
+
+  // Convert coordinates from current displayed space to original image space
+  unscaleCoordinates(location: Location): Location {
+    if (this.originalImageWidth === 0 || !this.worldMapImage) {
+      return location;
+    }
+
+    const scale = this.calculateImageScale();
+    const position = this.calculateImagePosition(scale);
+    
+    return {
+      x: (location.x - position.x) / scale,
+      y: (location.y - position.y) / scale,
+    };
   }
 
   // Render days traveled text and current hint
@@ -332,6 +489,60 @@ export class MapView {
     return { background, text, buttonBackground, buttonText };
   }
 
+  private addInstructions(): void{
+    const inButton = new Konva.Group;
+    const inBack = new Konva.Rect({
+      x: this.stage.width() - 250,
+      y: 70,
+      width: 100,
+      height: 40,
+      fill: "red",
+      cornerRadius: 10,
+      stroke: "black",
+      strokeWidth: 3,
+    });
+    const inText = new Konva.Text({
+      x: this.stage.width()-230,
+      y: 80,
+      text: "Instructions",
+      fontSize: 13,
+      fontFamily: "Arial",
+      fill: "white",
+      align: "center",
+    })
+    inButton.add(inBack);
+    inButton.add(inText);
+    this.layer.add(inButton);
+    inButton.moveToTop();
+    this.layer.draw();
+
+    inBack.on("click", () => {
+      this.nonGame = true;
+    });
+    inText.on("click", () => {
+      this.nonGame = true;
+    });
+
+  }
+
+  createInstructionsMessage(): Konva.Group{
+    const instMessage = new Konva.Group({
+      name: "messageBox",
+    });
+    const inst = "To play the map game, click on a point in the map to guess where this mystery location is! After your first 2 attempts, a yellow circle will appear as a hint! Your location is inside of that circle. After clicking on the correct location, a message will appear congratulating then you need to click on the red \"Continue\" button and you can continue playing the game!";
+    const { background, text, buttonBackground, buttonText } = this.createMessageBox(inst);
+    instMessage.add(background);
+    instMessage.add(text);
+    instMessage.add(buttonBackground);
+    instMessage.add(buttonText);
+    this.nonGame = false;
+    return instMessage;
+  }
+
+  instructionsHide(): void{
+
+  }
+
   // Remove existing markers from the layer
   removeMarkers(): void {
     const markers = this.layer.find((node: Konva.Node) => node.name() === "marker");
@@ -360,11 +571,14 @@ export class MapView {
       name: "travelPath",
     });
 
+    // Scale all coordinates to match current image size
+    const scaledLocations = correctLocations.map(loc => this.scaleCoordinates(loc));
+
     // Draw lines connecting correct locations in order
-    if (correctLocations.length > 1) {
-      for (let i = 0; i < correctLocations.length - 1; i++) {
-        const start = correctLocations[i];
-        const end = correctLocations[i + 1];
+    if (scaledLocations.length > 1) {
+      for (let i = 0; i < scaledLocations.length - 1; i++) {
+        const start = scaledLocations[i];
+        const end = scaledLocations[i + 1];
         
         const line = new Konva.Line({
           points: [start.x, start.y, end.x, end.y],
@@ -377,7 +591,7 @@ export class MapView {
     }
 
     // Draw yellow dots at each correct location
-    correctLocations.forEach((location, index) => {
+    scaledLocations.forEach((location, index) => {
       const dot = new Konva.Circle({
         x: location.x,
         y: location.y,
@@ -455,7 +669,6 @@ export class MapView {
     this.layer.add(buttonText);
     buttonBackground.moveToTop();
     buttonText.moveToTop();
-    
     this.layer.draw();
   }
 
