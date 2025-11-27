@@ -7,7 +7,7 @@ import europeMapSrc from "../public/europe_map.jpg";
 import africaMapSrc from "../public/africa_map.jpg";
 import asiaMapSrc from "../public/asia_map.jpg";
 import australiaMapSrc from "../public/australia_map.jpg";
-import worldMapImageSrc from "../public/world_map.jpg";
+import worldMapImageSrc from "../public/WorldMap1.png";
 import { MapModel, Location } from "./MapModel";
 
 // View class to manage Konva rendering
@@ -41,9 +41,13 @@ export class MapView {
   // Initialize the map view
   async init(): Promise<void> {
     await this.loadWorldMap();
+    // Clear any existing message boxes
+    this.removeMessageBoxes();
     // Show target location marker for debugging
     this.showTargetLocation();
     this.addInstructions();
+    // Show path visualization if there are any correct locations
+    this.updatePathVisualization();
   }
 
   // Show target location marker (for debugging - shows where the game thinks the location is)
@@ -242,6 +246,9 @@ export class MapView {
         existingTarget.forEach((node) => node.destroy());
         this.showTargetLocation();
       }
+      
+      // Update path visualization to match new scale
+      this.updatePathVisualization();
       
       // Redraw everything
       this.layer.draw();
@@ -561,7 +568,76 @@ export class MapView {
     shape.moveToTop();
   }
 
-  // Render travel path visualization
+  // Update path visualization during gameplay (shows path without continue button)
+  updatePathVisualization(): void {
+    // Remove existing path visualization
+    const existingPath = this.layer.find((node: Konva.Node) => 
+      node.name() === "gameplayPath"
+    );
+    existingPath.forEach((node) => node.destroy());
+
+    const correctLocations = this.model.getCorrectLocations();
+    if (correctLocations.length === 0) {
+      this.layer.draw();
+      return;
+    }
+
+    const pathGroup = new Konva.Group({
+      name: "gameplayPath",
+    });
+
+    // Scale all coordinates to match current image size
+    const scaledLocations = correctLocations.map(loc => this.scaleCoordinates(loc));
+
+    // Draw lines connecting correct locations in order
+    if (scaledLocations.length > 1) {
+      for (let i = 0; i < scaledLocations.length - 1; i++) {
+        const start = scaledLocations[i];
+        const end = scaledLocations[i + 1];
+        
+        const line = new Konva.Line({
+          points: [start.x, start.y, end.x, end.y],
+          stroke: "red",
+          strokeWidth: 2,
+        });
+        
+        pathGroup.add(line);
+      }
+    }
+
+    // Draw yellow dots at each correct location
+    scaledLocations.forEach((location, index) => {
+      const dot = new Konva.Circle({
+        x: location.x,
+        y: location.y,
+        radius: 6,
+        fill: "yellow",
+        stroke: "black",
+        strokeWidth: 1,
+      });
+      
+      // Add number label
+      const label = new Konva.Text({
+        x: location.x,
+        y: location.y - 20,
+        text: `${index + 1}`,
+        fontSize: 14,
+        fontFamily: "Arial",
+        fill: "black",
+        align: "center",
+      });
+      label.offsetX(label.width() / 2);
+      
+      pathGroup.add(dot);
+      pathGroup.add(label);
+    });
+
+    this.layer.add(pathGroup);
+    pathGroup.moveToTop();
+    this.layer.draw();
+  }
+
+  // Render travel path visualization (full-screen with continue button)
   renderTravelPath(correctLocations: Location[]): void {
     // Hide markers but keep map and text visible
     const markers = this.layer.find((node: Konva.Node) => node.name() === "marker");
@@ -675,5 +751,12 @@ export class MapView {
   // Redraw the layer
   draw(): void {
     this.layer.draw();
+  }
+
+  // Cleanup method to properly destroy the stage
+  destroy(): void {
+    if (this.stage) {
+      this.stage.destroy();
+    }
   }
 }

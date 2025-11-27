@@ -13,6 +13,9 @@ import { FlagGameController } from "./FlagMinigame/FlagGameController";
 export class GameManager {
     private containerId: string;
     private currentController: any = null;
+    private mapModel: MapModel | null = null;
+    private mapView: MapView | null = null;
+    private mapController: MapController | null = null;
 
     constructor(containerId: string) {
         this.containerId = containerId;
@@ -53,15 +56,53 @@ export class GameManager {
     }
 
     private async showMap() {
-        this.clearContainer();
+        // Don't clear if we're just returning to the map - preserve the model
+        // Only clear if we're coming from intro or a different screen
+        const shouldClear = !this.mapModel;
+        
+        if (shouldClear) {
+            this.clearContainer();
+        } else {
+            // Just clear the container HTML, but keep model state
+            // Destroy the old view's stage first
+            if (this.mapView && this.mapView.destroy) {
+                this.mapView.destroy();
+            }
+            if (this.currentController && this.currentController.destroy) {
+                this.currentController.destroy();
+            }
+            const container = document.getElementById(this.containerId);
+            if (container) {
+                container.innerHTML = "";
+            }
+            this.currentController = null;
+        }
 
-        const model = new MapModel();
-        const view = new MapView(this.containerId, model);
-        await view.init();
-        const controller = new MapController(model, view);
-        this.currentController = controller;
+        // Reuse existing model if it exists, otherwise create a new one
+        if (!this.mapModel) {
+            this.mapModel = new MapModel();
+        } else {
+            // Reset UI state flags when returning to map
+            // This ensures clicks work properly after returning from other screens
+            this.mapModel.messageBoxVisible = false;
+            this.mapModel.showingTravelPath = false;
+        }
+        
+        // Always recreate the view since the DOM was cleared
+        // The view needs to be recreated because the Konva stage was destroyed
+        this.mapView = new MapView(this.containerId, this.mapModel);
+        await this.mapView.init();
+        
+        // Ensure the stage is ready before creating controller
+        // Recreate controller with the new view
+        this.mapController = new MapController(this.mapModel, this.mapView);
+        
+        // Force a redraw to ensure everything is ready
+        this.mapView.draw();
+        
+        this.currentController = this.mapController;
 
-        (controller as any).setOnLocationFound((locationData: any) => {
+        (this.mapController as any).setOnLocationFound((locationData: any) => {
             this.showPostcard(locationData);
         });
     }

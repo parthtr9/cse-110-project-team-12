@@ -42,8 +42,15 @@ export class MapModel {
   private _mapSwitch: boolean = false;
 
   constructor() {
-    // Initialize with the first location
-    this.initializeLocation(0);
+    // Initialize with a random location
+    const locations = getLocationsForMap(this._mapType);
+    if (locations.length > 0) {
+      const randomIndex = Math.floor(Math.random() * locations.length);
+      this.initializeLocation(randomIndex);
+    } else {
+      // Fallback to 0 if no locations available
+      this.initializeLocation(0);
+    }
   }
 
   // Getters
@@ -147,13 +154,35 @@ export class MapModel {
   advanceToNextLocation(): boolean {
     const locations = getLocationsForMap(this._mapType);
     
-    if (this._currentLocationIndex + 1 >= locations.length) {
-      // No more locations - game complete!
+    if (locations.length === 0) {
+      // No locations available
       return false;
     }
 
-    this._currentLocationIndex++;
-    this.initializeLocation(this._currentLocationIndex);
+    // Filter out the current location to avoid immediate repeats
+    const availableLocations = locations.filter(
+      (_, index) => index !== this._currentLocationIndex
+    );
+
+    if (availableLocations.length === 0) {
+      // Only one location exists, can't avoid repeat - allow it
+      // Keep using the same location
+      return true;
+    }
+
+    // Pick a random location from the available ones
+    const randomIndex = Math.floor(Math.random() * availableLocations.length);
+    const randomLocation = availableLocations[randomIndex];
+    
+    // Find the index of this location in the original array
+    const newIndex = locations.findIndex(loc => loc.id === randomLocation.id);
+    
+    if (newIndex === -1) {
+      console.error("Could not find location index");
+      return false;
+    }
+
+    this.initializeLocation(newIndex);
     return true;
   }
 
