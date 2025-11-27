@@ -10,10 +10,11 @@ export class IntroScreenController {
     private story: string[];
     private rules: string[];
 
-    private onComplete: (() => void) | null = null;
+    private onFinish: (() => void) | null = null;
 
-    constructor(layer: Konva.Layer, stage: Konva.Stage) {
+    constructor(layer:Konva.Layer, stage:Konva.Stage, onFinish?: () => void){
         this.model = new IntroScreenModel();
+        this.onFinish = onFinish ?? null;
         this.view = new IntroScreenView(this.handleNextClick, layer, stage);
         this.rules = this.getData(ruleData);
         this.story = this.getData(storyData);
@@ -36,6 +37,10 @@ export class IntroScreenController {
             if (this.onComplete) {
                 this.onComplete();
             }
+        }
+        else if(this.model.getState() == 2){
+            // Intro finished; notify coordinator
+            if (this.onFinish) this.onFinish();
         }
     }
 

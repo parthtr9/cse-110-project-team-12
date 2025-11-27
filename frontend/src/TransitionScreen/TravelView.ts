@@ -301,7 +301,7 @@ export class TravelView {
     if (this.currentScreen !== 'traveling') return;
     
     // Find and update progress bar
-    const progressBar = this.layer.findOne((node: Konva.Node) => {
+    const progressBar = this.layer.findOne((node: any) => {
       return node.getAttr('fill') === '#4169E1';
     }) as Konva.Rect;
 

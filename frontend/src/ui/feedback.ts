@@ -18,13 +18,7 @@ export function pulseAt(
   });
   layer.add(ring);
   layer.batchDraw();
-  new Konva.Tween({
-    node: ring,
-    radius: 28,
-    opacity: 0,
-    duration: 0.5,
-    onFinish: () => ring.destroy(),
-  }).play();
+  ring.to({ radius: 28, opacity: 0, duration: 0.5, onFinish: () => ring.destroy() });
 
   if (kind === "good") {
     const text = new Konva.Text({
@@ -36,18 +30,8 @@ export function pulseAt(
       opacity: 0,
     });
     layer.add(text);
-    new Konva.Tween({
-      node: text,
-      opacity: 1,
-      duration: 0.12,
-      onFinish: () =>
-        new Konva.Tween({
-          node: text,
-          opacity: 0,
-          y: text.y() - 8,
-          duration: 0.5,
-          onFinish: () => text.destroy(),
-        }).play(),
-    }).play();
+    text.to({ opacity: 1, duration: 0.12, onFinish: () => {
+      text.to({ opacity: 0, y: text.y() - 8, duration: 0.5, onFinish: () => text.destroy() });
+    }});
   }
 }
