@@ -36,6 +36,9 @@ export class MapModel {
   // Clicked locations history
   private _clickedLocations: ClickedLocation[] = [];
 
+  // Track which locations have been correctly guessed (visited)
+  private _visitedLocationIds: Set<string> = new Set();
+
   // UI state flags
   private _messageBoxVisible: boolean = false;
   private _showingTravelPath: boolean = false;
@@ -159,18 +162,18 @@ export class MapModel {
       return false;
     }
 
-    // Filter out the current location to avoid immediate repeats
+    // Filter out all visited locations (locations that have been correctly guessed)
     const availableLocations = locations.filter(
-      (_, index) => index !== this._currentLocationIndex
+      (loc) => !this._visitedLocationIds.has(loc.id)
     );
 
     if (availableLocations.length === 0) {
-      // Only one location exists, can't avoid repeat - allow it
-      // Keep using the same location
-      return true;
+      // All locations have been visited - game complete!
+      console.log("All locations have been visited! Game complete!");
+      return false;
     }
 
-    // Pick a random location from the available ones
+    // Pick a random location from the available (unvisited) ones
     const randomIndex = Math.floor(Math.random() * availableLocations.length);
     const randomLocation = availableLocations[randomIndex];
     
@@ -205,6 +208,24 @@ export class MapModel {
   // Business logic methods
   addClickedLocation(location: ClickedLocation): void {
     this._clickedLocations.push(location);
+  }
+
+  // Mark the current location as visited (called when correctly guessed)
+  markCurrentLocationAsVisited(): void {
+    if (this._currentLocationId) {
+      this._visitedLocationIds.add(this._currentLocationId);
+    }
+  }
+
+  // Get the number of visited locations
+  getVisitedLocationCount(): number {
+    return this._visitedLocationIds.size;
+  }
+
+  // Check if all locations have been visited
+  areAllLocationsVisited(): boolean {
+    const locations = getLocationsForMap(this._mapType);
+    return this._visitedLocationIds.size >= locations.length;
   }
 
   isClickCorrect(x: number, y: number): boolean {

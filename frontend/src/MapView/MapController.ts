@@ -178,6 +178,8 @@ export class MapController {
 		  this.correctBuzzer.currentTime = 0;
       this.model._daysTraveled += this.model.days;
       this.model.days = 1;
+      // Mark this location as visited so it won't be shown again
+      this.model.markCurrentLocationAsVisited();
       this.showSuccessMessage();
     } 
     else {
