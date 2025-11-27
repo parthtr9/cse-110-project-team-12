@@ -11,6 +11,6 @@
      "resolveJsonModule": true,
      "skipLibCheck": true
   },
-  "include": ["src", "custom.d.ts", "test"],
-  "exclude": ["tests"]
+  "include": ["src", "test"],
+  "exclude": ["tests", "src/main.ts", "custom.d.ts"]
 }

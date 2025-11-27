@@ -16,6 +16,7 @@ export class PostcardView {
   private backView: PostcardBackView;
   private cardBg: Konva.Rect;
   private closeButton: Konva.Group | null;
+  private travelButton: Konva.Group | null;
 
   constructor(layer: Konva.Layer) {
     this.layer = layer;
@@ -39,9 +40,10 @@ export class PostcardView {
     this.minimizedY = stageHeight - this.cardHeight * 0.3 - 20;
 
     this.group = new Konva.Group();
-    this.frontView = new PostcardFrontView(this.cardWidth, this.cardHeight);
-    this.backView = new PostcardBackView(this.cardWidth, this.cardHeight);
-    this.closeButton = null;
+  this.frontView = new PostcardFrontView(this.cardWidth, this.cardHeight);
+  this.backView = new PostcardBackView(this.cardWidth, this.cardHeight);
+  this.closeButton = null;
+  this.travelButton = null;
 
     this.cardBg = new Konva.Rect();
     this.setupCard();
@@ -67,7 +69,47 @@ export class PostcardView {
 
     this.group.add(this.cardBg);
     this.createCloseButton();
+    this.createTravelButton();
     this.layer.add(this.group);
+  }
+
+  private createTravelButton(): void {
+    this.travelButton = new Konva.Group({
+      name: "travelButton",
+      x: this.cardWidth - 140,
+      y: this.cardHeight - 60,
+    });
+
+    const bg = new Konva.Rect({
+      width: 120,
+      height: 40,
+      fill: "#4CAF50",
+      cornerRadius: 8,
+    });
+    const text = new Konva.Text({
+      text: "Travel",
+      fontSize: 18,
+      fill: "white",
+      x: 60,
+      y: 8,
+      align: "center",
+    });
+    text.offsetX(text.width() / 2);
+
+    this.travelButton.add(bg);
+    this.travelButton.add(text);
+
+    // hover effect
+    this.travelButton.on("mouseenter", () => {
+      (bg as Konva.Rect).fill("#66BB6A");
+      this.layer.batchDraw();
+    });
+    this.travelButton.on("mouseleave", () => {
+      (bg as Konva.Rect).fill("#4CAF50");
+      this.layer.batchDraw();
+    });
+
+    this.group.add(this.travelButton);
   }
 
   private createCloseButton(): void {
@@ -196,6 +238,19 @@ export class PostcardView {
         handler();
       });
       this.closeButton.on("tap", (e) => {
+        e.cancelBubble = true;
+        handler();
+      });
+    }
+  }
+
+  setTravelHandler(handler: () => void): void {
+    if (this.travelButton) {
+      this.travelButton.on("click", (e) => {
+        e.cancelBubble = true;
+        handler();
+      });
+      this.travelButton.on("tap", (e) => {
         e.cancelBubble = true;
         handler();
       });

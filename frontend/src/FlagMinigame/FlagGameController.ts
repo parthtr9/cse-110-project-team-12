@@ -1,5 +1,6 @@
 import { FlagGameModel } from './FlagGameModel';
 import { FlagGameView } from './FlagGameView';
+import { ScoreManager } from './ScoreManager';
 import { FlagGameConfig, FlagGameState } from './types';
 
 export class FlagGameController {
@@ -96,9 +97,11 @@ export class FlagGameController {
 
         this.overlay.style.display = 'flex';
 
-        this.model.reset();
-        this.gameState = 'playing';
-        this.startNewRound();
+        this.view.showInstructions(() => {
+            this.model.reset();
+            this.gameState = 'playing';
+            this.startNewRound();
+        });
     }
 
     private startNewRound(): void {
@@ -145,17 +148,22 @@ export class FlagGameController {
 
     private finishGame(): void {
         this.gameState = 'finished';
+        const finalScore = this.model.getScore();
+        const totalRounds = this.model.getTotalRounds();
+
+        // Add score to top scores
+        ScoreManager.addScore(finalScore);
+        const topScores = ScoreManager.getTopScores();
+
         this.view.showFinishScreen(
-            this.model.getScore(),
-            this.model.getTotalRounds()
+            finalScore,
+            totalRounds,
+            topScores
         );
 
         setTimeout(() => {
             this.destroy();
-            if (this.onFinish) {
-                this.onFinish();
-            }
-        }, 4000);
+        }, 6000);
     }
 
     destroy(): void {

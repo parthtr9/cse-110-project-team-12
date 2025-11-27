@@ -13,25 +13,25 @@ export class IntroScreenView {
         this.group = new Konva.Group({ visible: true });
         this.layer = layer;
         this.stage = stage;
-        Konva.Image.fromURL("./src/Intro/Data/meimeiRed.jpg", (image) => {
+        Konva.Image.fromURL("/meimeiRed.jpg", (image) => {
             image.width(300);
             image.height(300);
-            image.x(this.stage.width() / 2 + 400);
-            image.y(600);
-            image.offsetX(image.width() / 2);
-            image.offsetY(image.height() / 2);
-            this.meimeiRed = image;
-        }, (error) => { console.log(error) });
-        Konva.Image.fromURL("./src/Intro/Data/meimeiBlue.jpg", (image) => {
+			image.x(this.stage.width() / 2 + 400);
+			image.y(600);
+			image.offsetX( image.width() / 2);
+			image.offsetY( image.height() / 2);
+			this.meimeiRed = image;
+		}, (error) =>{console.log(error)});
+        Konva.Image.fromURL("/meimeiBlue.jpg", (image) => {
             image.width(300);
             image.height(300);
-            image.x(this.stage.width() / 2 - 400);
-            image.y(650);
-            image.offsetX(image.width() / 2);
-            image.offsetY(image.height() / 2);
-            this.meimeiBlue = image;
-        }, (error) => { console.log(error) });
-        Konva.Image.fromURL("./src/Intro/Data/meimeiYellow.jpg", (image) => {
+			image.x(this.stage.width() / 2 - 400);
+			image.y(650);
+			image.offsetX( image.width() / 2);
+			image.offsetY( image.height() / 2);
+			this.meimeiBlue = image;
+		}, (error) =>{console.log(error)});
+        Konva.Image.fromURL("/meimeiYellow.jpg", (image) => {
             image.width(300);
             image.height(300);
             image.x(this.stage.width() / 2);
