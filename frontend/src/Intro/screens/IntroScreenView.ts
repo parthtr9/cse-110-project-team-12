@@ -105,12 +105,12 @@ export class IntroScreenView {
         let buttonText = "Placeholder";
         if (state == 1) {
             img = this.meimeiRed;
-            bgColor = 'rgb(198,56,56)';
+            bgColor = 'rgba(245, 114, 114, 1)';
             buttonText = "NEXT";
         }
         else if (state == 2) {
             img = this.meimeiBlue;
-            bgColor = 'rgb(69, 81, 196)';
+            bgColor = 'rgba(119, 130, 227, 1)';
             buttonText = "PLAY GAME";
         }
 
