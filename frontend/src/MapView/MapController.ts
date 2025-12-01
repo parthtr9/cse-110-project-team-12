@@ -26,14 +26,50 @@ export class MapController {
   // Initialize all event handlers
   private initEventHandlers(): void {
     const stage = this.view.getStage();
+    // Remove any existing click handlers to avoid duplicates
+    stage.off("click");
+    // Attach new click handler
     stage.on("click", (e) => this.handleStageClick(e));
   }
 
   // Main click handler
   private handleStageClick(e: Konva.KonvaEventObject<MouseEvent>): void {
     const pointerPos = this.view.getStage().getPointerPosition();
-    if (!pointerPos) return;
+    if (!pointerPos) {
+      console.log("No pointer position");
+      return;
+    }
+    
+    console.log("Click detected", {
+      messageBoxVisible: this.model.messageBoxVisible,
+      showingTravelPath: this.model.showingTravelPath,
+      nonGame: this.view.nonGame
+    });
 
+    // Check if click is on postcard - if so, ignore it (let postcard handle it)
+    let shape: Konva.Node | null = e.target as Konva.Node;
+    while (shape) {
+      const shapeName = shape.name();
+      if (shapeName === "postcard") {
+        // Click is on postcard, don't process as map click
+        console.log("Click on postcard, ignoring map click");
+        return;
+      }
+      // Check all parents up the chain
+      const parent = shape.getParent();
+      if (parent) {
+        if (parent.name() === "postcard") {
+          console.log("Click on postcard (via parent), ignoring map click");
+          return;
+        }
+        // Also check if parent is a group that contains postcard
+        if (parent instanceof Konva.Group && parent.find(".postcard").length > 0) {
+          console.log("Click inside postcard group, ignoring map click");
+          return;
+        }
+      }
+      shape = parent;
+    }
 
     // Handle Instructions button
     if(this.view.nonGame){
@@ -47,13 +83,39 @@ export class MapController {
       return;
     }
 
-    // Handle message box visible
+    // Handle message box visible - check if clicking on continue button
     if (this.model.messageBoxVisible) {
-      this.handleMessageBoxClick(e);
+      const wasContinueButton = this.handleMessageBoxClick(e);
+      // If not clicking on continue button, allow map clicks to continue guessing
+      if (!wasContinueButton) {
+        // Check if click is on the message box itself (not the map)
+        let shape: Konva.Node | null = e.target as Konva.Node;
+        let isMessageBoxClick = false;
+        while (shape) {
+          if (shape.name() === "messageBox") {
+            isMessageBoxClick = true;
+            break;
+          }
+          shape = shape.getParent();
+        }
+        
+        // If not clicking on message box, and previous guess was incorrect, allow new guess
+        if (!isMessageBoxClick) {
+          const wasCorrectGuess = this.model.getLastClickedLocationCorrectness();
+          if (!wasCorrectGuess) {
+            // Previous guess was incorrect, allow new guess
+            this.view.removeMessageBoxes();
+            this.model.messageBoxVisible = false;
+            this.handleMapClick(pointerPos.x, pointerPos.y);
+          }
+          // If previous guess was correct, only continue button works
+        }
+      }
       return;
     }
 
     // Handle map click
+    console.log("Processing map click");
     this.handleMapClick(pointerPos.x, pointerPos.y);
   }
 
@@ -86,17 +148,19 @@ export class MapController {
   }
 
   // Handle clicks when message box is visible
-  private handleMessageBoxClick(e: Konva.KonvaEventObject<MouseEvent>): void {
+  // Returns true if continue button was clicked, false otherwise
+  private handleMessageBoxClick(e: Konva.KonvaEventObject<MouseEvent>): boolean {
     let shape: Konva.Node | null = e.target as Konva.Node;
     while (shape) {
       if (shape.name() === "continueButton") {
         const wasCorrectGuess = this.model.getLastClickedLocationCorrectness();
         this.dismissMessageBox(wasCorrectGuess);
-        return;
+        return true;
       }
       shape = shape.getParent();
     }
-    // Ignore all other clicks when message box is visible
+    // Not clicking on continue button
+    return false;
   }
 
   // Handle clicks on the map
@@ -138,6 +202,8 @@ export class MapController {
 		  this.correctBuzzer.currentTime = 0;
       this.model._daysTraveled += this.model.days;
       this.model.days = 1;
+      // Mark this location as visited so it won't be shown again
+      this.model.markCurrentLocationAsVisited();
       this.showSuccessMessage();
     } 
     else {
@@ -188,22 +254,26 @@ export class MapController {
     this.model.messageBoxVisible = false;
 
     if (wasCorrectGuess) {
-      if (this.onLocationFound) {
-        const currentLocation = this.model.getCurrentLocationData();
-        if (currentLocation) {
-          this.onLocationFound(currentLocation);
-        }
-      }
-
       const hasMoreLocations = this.model.advanceToNextLocation();
 
       this.view.updateHint();
       this.view.hideTargetLocation();
       this.view.showTargetLocation();
+      
+      // Update path visualization to show all correct locations
+      this.view.updatePathVisualization();
 
-      if (this.model.hasClickedLocations()) {
-        this.showTravelPath();
-      } else if (hasMoreLocations) {
+      // After advancing to next location, notify with the NEW location data
+      if (this.onLocationFound) {
+        const newLocation = this.model.getCurrentLocationData();
+        if (newLocation) {
+          this.onLocationFound(newLocation);
+        }
+      }
+
+      // Don't show travel path automatically - let user continue guessing
+      // The path visualization is already shown during gameplay via updatePathVisualization()
+      if (hasMoreLocations) {
         this.view.draw();
       } else {
         console.log("Game complete!");
@@ -219,6 +289,14 @@ export class MapController {
     this.model.showingTravelPath = true;
     const correctLocations = this.model.getCorrectLocations();
     this.view.renderTravelPath(correctLocations);
+  }
+
+  // Cleanup method to remove event handlers
+  destroy(): void {
+    const stage = this.view.getStage();
+    if (stage) {
+      stage.off("click");
+    }
   }
 }
 

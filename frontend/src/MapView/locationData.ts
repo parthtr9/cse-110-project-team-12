@@ -14,6 +14,7 @@ export interface LocationEntry {
   name: string;
   continent: string;
   hint: string;
+  image: string;
   worldMap: LocationCoordinates;
   continentMap: LocationCoordinates;
 }
@@ -33,6 +34,7 @@ function isLocationsData(data: any): data is LocationsData {
         loc.name &&
         loc.continent &&
         loc.hint &&
+        loc.image &&
         loc.worldMap &&
         loc.continentMap
     )
@@ -66,6 +68,7 @@ export function getLocationsForMap(
   name: string;
   continent: string;
   hint: string;
+  image: string;
   x: number;
   y: number;
   tolerance: number;
@@ -76,6 +79,7 @@ export function getLocationsForMap(
     name: loc.name,
     continent: loc.continent,
     hint: loc.hint,
+    image: loc.image,
     x: loc[mapType].x,
     y: loc[mapType].y,
     tolerance: loc[mapType].tolerance,
@@ -91,6 +95,7 @@ export function getLocationsByContinent(
   name: string;
   continent: string;
   hint: string;
+  image: string;
   x: number;
   y: number;
   tolerance: number;
@@ -109,6 +114,7 @@ export function getLocationById(
   name: string;
   continent: string;
   hint: string;
+  image: string;
   x: number;
   y: number;
   tolerance: number;
@@ -122,6 +128,7 @@ export function getLocationById(
     name: location.name,
     continent: location.continent,
     hint: location.hint,
+    image: location.image,
     x: location[mapType].x,
     y: location[mapType].y,
     tolerance: location[mapType].tolerance,

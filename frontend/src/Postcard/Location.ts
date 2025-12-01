@@ -8,17 +8,23 @@ export class Location {
   private coords: Coordinate;
   private story: string;
   private numDays: number;
+  private hint: string;
+  private image: string;
 
   constructor(
     name: string,
     coords: Coordinate,
     story: string,
-    numDays: number
+    numDays: number,
+    hint?: string,
+    image?: string
   ) {
     this.name = name;
     this.coords = coords;
     this.story = story;
     this.numDays = numDays;
+    this.hint = hint || "";
+    this.image = image || "";
   }
 
   getNumDays(): number {
@@ -35,5 +41,13 @@ export class Location {
 
   getCoords(): Coordinate {
     return this.coords;
+  }
+
+  getHint(): string {
+    return this.hint;
+  }
+
+  getImage(): string {
+    return this.image;
   }
 }

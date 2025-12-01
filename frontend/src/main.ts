@@ -1,6 +1,7 @@
-import { initMapView } from "./MapView";
+import { GameManager } from "./GameManager";
 
-// Initialize the map view when the page loads
-initMapView().catch((error) => {
-  console.error("Failed to initialize map view:", error);
+// Initialize the game when the page loads
+const gameManager = new GameManager("container");
+gameManager.start().catch((error) => {
+  console.error("Failed to start game:", error);
 });

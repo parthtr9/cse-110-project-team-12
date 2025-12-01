@@ -36,14 +36,24 @@ export class MapModel {
   // Clicked locations history
   private _clickedLocations: ClickedLocation[] = [];
 
+  // Track which locations have been correctly guessed (visited)
+  private _visitedLocationIds: Set<string> = new Set();
+
   // UI state flags
   private _messageBoxVisible: boolean = false;
   private _showingTravelPath: boolean = false;
   private _mapSwitch: boolean = false;
 
   constructor() {
-    // Initialize with the first location
-    this.initializeLocation(0);
+    // Initialize with a random location
+    const locations = getLocationsForMap(this._mapType);
+    if (locations.length > 0) {
+      const randomIndex = Math.floor(Math.random() * locations.length);
+      this.initializeLocation(randomIndex);
+    } else {
+      // Fallback to 0 if no locations available
+      this.initializeLocation(0);
+    }
   }
 
   // Getters
@@ -147,13 +157,35 @@ export class MapModel {
   advanceToNextLocation(): boolean {
     const locations = getLocationsForMap(this._mapType);
     
-    if (this._currentLocationIndex + 1 >= locations.length) {
-      // No more locations - game complete!
+    if (locations.length === 0) {
+      // No locations available
       return false;
     }
 
-    this._currentLocationIndex++;
-    this.initializeLocation(this._currentLocationIndex);
+    // Filter out all visited locations (locations that have been correctly guessed)
+    const availableLocations = locations.filter(
+      (loc) => !this._visitedLocationIds.has(loc.id)
+    );
+
+    if (availableLocations.length === 0) {
+      // All locations have been visited - game complete!
+      console.log("All locations have been visited! Game complete!");
+      return false;
+    }
+
+    // Pick a random location from the available (unvisited) ones
+    const randomIndex = Math.floor(Math.random() * availableLocations.length);
+    const randomLocation = availableLocations[randomIndex];
+    
+    // Find the index of this location in the original array
+    const newIndex = locations.findIndex(loc => loc.id === randomLocation.id);
+    
+    if (newIndex === -1) {
+      console.error("Could not find location index");
+      return false;
+    }
+
+    this.initializeLocation(newIndex);
     return true;
   }
 
@@ -163,6 +195,7 @@ export class MapModel {
     name: string;
     continent: string;
     hint: string;
+    image: string;
     x: number;
     y: number;
     tolerance: number;
@@ -176,6 +209,24 @@ export class MapModel {
   // Business logic methods
   addClickedLocation(location: ClickedLocation): void {
     this._clickedLocations.push(location);
+  }
+
+  // Mark the current location as visited (called when correctly guessed)
+  markCurrentLocationAsVisited(): void {
+    if (this._currentLocationId) {
+      this._visitedLocationIds.add(this._currentLocationId);
+    }
+  }
+
+  // Get the number of visited locations
+  getVisitedLocationCount(): number {
+    return this._visitedLocationIds.size;
+  }
+
+  // Check if all locations have been visited
+  areAllLocationsVisited(): boolean {
+    const locations = getLocationsForMap(this._mapType);
+    return this._visitedLocationIds.size >= locations.length;
   }
 
   isClickCorrect(x: number, y: number): boolean {

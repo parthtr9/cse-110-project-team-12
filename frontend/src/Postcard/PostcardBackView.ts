@@ -28,17 +28,41 @@ export class PostcardBackView {
     });
     group.add(greeting);
 
-    // Story text
+    // Hint text (location hint) - displayed first
+    const hint = location.getHint();
+    let currentY = padding + 70;
+    
+    if (hint) {
+      const hintText = new Konva.Text({
+        name: "content",
+        text: hint,
+        x: padding,
+        y: currentY,
+        width: (this.cardWidth - padding * 2) * 0.6,
+        fontSize: 18,
+        fontFamily: "Arial",
+        fill: "#555",
+        fontStyle: "italic",
+        lineHeight: 1.5,
+        wrap: "word",
+      });
+      group.add(hintText);
+      // Move story text down below the hint
+      currentY += hintText.height() + 20;
+    }
+
+    // Story text (below hint if hint exists, otherwise at original position)
     const story = new Konva.Text({
       name: "content",
       text: location.getStory(),
       x: padding,
-      y: padding + 70,
+      y: currentY,
       width: (this.cardWidth - padding * 2) * 0.6,
       fontSize: 20,
       fontFamily: "Arial",
       fill: "#333",
       lineHeight: 1.5,
+      wrap: "word",
     });
     group.add(story);
 
