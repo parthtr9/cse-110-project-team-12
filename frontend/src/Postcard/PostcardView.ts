@@ -52,6 +52,10 @@ export class PostcardView {
   private setupCard(): void {
     this.group.x(this.normalX);
     this.group.y(this.normalY);
+    // Set a name so we can identify postcard clicks
+    this.group.name("postcard");
+    // Make sure the group listens to events (so clicks work)
+    this.group.listening(true);
 
     // Card background
     this.cardBg = new Konva.Rect({
@@ -65,12 +69,21 @@ export class PostcardView {
       shadowOffsetX: 5,
       shadowOffsetY: 5,
       cornerRadius: 5,
+      name: "postcard", // Also name the background so it's detected
     });
 
     this.group.add(this.cardBg);
     this.createCloseButton();
     this.createTravelButton();
     this.layer.add(this.group);
+    
+    // Stop all clicks on postcard from propagating to stage
+    this.group.on("click", (e) => {
+      e.cancelBubble = true;
+    });
+    this.group.on("tap", (e) => {
+      e.cancelBubble = true;
+    });
   }
 
   private createTravelButton(): void {
@@ -212,6 +225,8 @@ export class PostcardView {
 
   setClickHandler(handler: () => void): void {
     this.group.on("click", (e) => {
+      // Stop event propagation so map doesn't receive the click
+      e.cancelBubble = true;
       if (
         e.target === this.closeButton ||
         e.target.parent === this.closeButton
@@ -221,6 +236,8 @@ export class PostcardView {
       handler();
     });
     this.group.on("tap", (e) => {
+      // Stop event propagation so map doesn't receive the tap
+      e.cancelBubble = true;
       if (
         e.target === this.closeButton ||
         e.target.parent === this.closeButton
@@ -255,6 +272,10 @@ export class PostcardView {
         handler();
       });
     }
+  }
+
+  getGroup(): Konva.Group {
+    return this.group;
   }
 
   destroy(): void {

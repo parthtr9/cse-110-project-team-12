@@ -5,6 +5,7 @@
       "name": "Niagara Falls",
       "continent": "North America",
       "hint": "I stood at the edge of the falls and felt the mist hit my face while the roar of the water drowned out everything else. A rainbow appeared in the spray and for a second it felt unreal.",
+      "image": "/postcard_images/niagara_falls.jpg",
       "worldMap": {
         "x": 284,
         "y": 182,
@@ -21,6 +22,7 @@
       "name": "Statue of Liberty",
       "continent": "North America",
       "hint": "The ferry ride was windy, and everyone crowded the deck to get a closer look. Seeing her up close made me think about all the people who once arrived here for the first time.",
+      "image": "/postcard_images/statue_of_liberty.jpg",
       "worldMap": {
         "x": 302,
         "y": 197,
@@ -37,6 +39,7 @@
       "name": "Grand Canyon",
       "continent": "North America",
       "hint": "Looking out over the canyon, the colors didn't even seem real. The wind was warm and the river far below looked like a silver thread cutting through time.",
+      "image": "/postcard_images/grand_canyon.jpg",
       "worldMap": {
         "x": 123,
         "y": 213,
@@ -53,6 +56,7 @@
       "name": "Golden Gate Bridge",
       "continent": "North America",
       "hint": "Fog covered the city when I got there, and the bridge seemed to disappear into it. When the sun broke through, the towers looked like they were floating above the bay.",
+      "image": "/postcard_images/golden_gate_bridge.jpg",
       "worldMap": {
         "x": 90,
         "y": 188,
@@ -69,6 +73,7 @@
       "name": "Hollywood Sign",
       "continent": "North America",
       "hint": "The hike up was steep and dusty, but the view at the top made it worth it. The city spread out below, full of noise and lights that never seem to stop.",
+      "image": "/postcard_images/hollywood_sign.png",
       "worldMap": {
         "x": 91,
         "y": 221,
@@ -85,6 +90,7 @@
       "name": "Space Needle",
       "continent": "North America",
       "hint": "The elevator shot up so fast my stomach flipped. From the top, the whole city looked tiny and the mountains in the distance seemed to touch the clouds.",
+      "image": "/postcard_images/space_needle.png",
       "worldMap": {
         "x": 116,
         "y": 160,
@@ -101,6 +107,7 @@
       "name": "Cloud Gate",
       "continent": "North America",
       "hint": "The big silver bean reflected everything around it like a dream. People were laughing, taking pictures, and trying to find themselves in the mirror.",
+      "image": "/postcard_images/cloud_gate.png",
       "worldMap": {
         "x": 251,
         "y": 187,
@@ -117,6 +124,7 @@
       "name": "The White House",
       "continent": "North America",
       "hint": "Standing behind the black fence, I watched tourists take photos and guards watch quietly. It's strange seeing a building that holds so much history just sitting there in the middle of a busy city.",
+      "image": "/postcard_images/white_house.jpg",
       "worldMap": {
         "x": 286,
         "y": 206,
@@ -133,6 +141,7 @@
       "name": "Christ the Redeemer",
       "continent": "South America",
       "hint": "I took a little train up a steep green mountain today, and at the top stood a towering figure with open arms, as if blessing the whole city below. From up there, I could see golden beaches, samba music in the streets, and people dancing with joy.",
+      "image": "/postcard_images/christ_the_redeemer.png",
       "worldMap": {
         "x": 415,
         "y": 518,
@@ -149,6 +158,7 @@
       "name": "Perito Moreno Glacier",
       "continent": "South America",
       "hint": "I bundled up in my warmest coat to see an enormous wall of ice stretching across a turquoise lake. Every so often, it cracks and roars, sending chunks tumbling into the water.",
+      "image": "/postcard_images/peritomorenoglacier.png",
       "worldMap": {
         "x": 331,
         "y": 654,
@@ -165,6 +175,7 @@
       "name": "Easter Island",
       "continent": "South America",
       "hint": "I'm on a tiny island in the middle of the ocean, surrounded by hundreds of giant stone faces staring toward the sea. No one's quite sure who carved them, but they seem a little lonely.",
+      "image": "/postcard_images/easterisland.jpg",
       "worldMap": {
         "x": 127,
         "y": 531,
@@ -181,6 +192,7 @@
       "name": "Machu Picchu",
       "continent": "South America",
       "hint": "What a climb I had today! Stone steps led me high above the clouds to an ancient city nestled between mountains. Llamas wander freely here, and I could almost hear whispers from the past in the mist.",
+      "image": "/postcard_images/machupicchu.jpg",
       "worldMap": {
         "x": 283,
         "y": 465,
@@ -197,6 +209,7 @@
       "name": "Galapagos Islands",
       "continent": "South America",
       "hint": "I spent the morning walking beside giant tortoises and watching birds that inspired the theory of evolution. It feels like stepping into a world before time.",
+      "image": "/postcard_images/galapagosisland.jpg",
       "worldMap": {
         "x": 202,
         "y": 400,
@@ -213,6 +226,7 @@
       "name": "Angel Falls",
       "continent": "South America",
       "hint": "A waterfall poured straight out of the clouds, taller than any I've ever seen, vanishing into a misty jungle below. No wonder they call it the highest in the world!",
+      "image": "/postcard_images/angelfalls.jpg",
       "worldMap": {
         "x": 323,
         "y": 367,
@@ -229,6 +243,7 @@
       "name": "Sydney Opera House",
       "continent": "Australia",
       "hint": "This is a very famous performing arts center down under, it has a really unique design!",
+      "image": "/postcard_images/sydneyoperahouse.jpg",
       "worldMap": {
         "x": 1291,
         "y": 571,
@@ -245,6 +260,7 @@
       "name": "Gold Coast",
       "continent": "Australia",
       "hint": "I traveled to this beach by the Coral Sea, some people said that it was a surfer's paradise!",
+      "image": "/postcard_images/goldcoast.jpg",
       "worldMap": {
         "x": 1322,
         "y": 529,
@@ -261,6 +277,7 @@
       "name": "Great Barrier Reef",
       "continent": "Australia",
       "hint": "Do you remember watching Finding Nemo when you were little? I went to the ocean that movie took place in!",
+      "image": "/postcard_images/greatbarrierreef.png",
       "worldMap": {
         "x": 1305,
         "y": 495,
@@ -277,6 +294,7 @@
       "name": "Byron Bay",
       "continent": "Australia",
       "hint": "Australia's easternmost point. (kinda gives away location rip) Where the world's brightest and most powerful lighthouse is located",
+      "image": "/postcard_images/byronbay.jpg",
       "worldMap": {
         "x": 1323,
         "y": 539,
@@ -293,6 +311,7 @@
       "name": "12 Apostles",
       "continent": "Australia",
       "hint": "A group of giant limestone figures by the Southern Ocean",
+      "image": "/postcard_images/12apostles.jpg",
       "worldMap": {
         "x": 1246,
         "y": 596,
@@ -309,6 +328,7 @@
       "name": "Stonehenge",
       "continent": "Europe",
       "hint": "This was quite a lovely place though the name of the field it's on reminds me of that steak dish, it was lovely to come here after seeing where the royal family lives",
+      "image": "/postcard_images/stonehenge.jpg",
       "worldMap": {
         "x": 620,
         "y": 135,
@@ -325,6 +345,7 @@
       "name": "Leaning tower of Pisa",
       "continent": "Europe",
       "hint": "I loved the food here, and the name of this place really reminded me of one of the dishes that I love from here. I also had a regional pasta dish near here called Pici!",
+      "image": "/postcard_images/leaningtowerofpisa.jpg",
       "worldMap": {
         "x": 670,
         "y": 175,
@@ -341,6 +362,7 @@
       "name": "Acropolis of Athens",
       "continent": "Europe",
       "hint": "The city near here is named after the Greek goddess of wisdom! Isn't that cool.",
+      "image": "/postcard_images/acropolisofathens.jpg",
       "worldMap": {
         "x": 723,
         "y": 196,
@@ -357,6 +379,7 @@
       "name": "Colosseum",
       "continent": "Europe",
       "hint": "This place is apparently the world's largest amphitheater! I also heard that they had a lot of gladiator fights and naval battles, isn't that scary.",
+      "image": "/postcard_images/colosseum.jpeg",
       "worldMap": {
         "x": 681,
         "y": 185,
@@ -373,6 +396,7 @@
       "name": "Brandenburg Gate",
       "continent": "Europe",
       "hint": "This gate is a symbol of reunification and is really close to the wall that prevented people in the east from going to the west",
+      "image": "/postcard_images/brandenburggate.png",
       "worldMap": {
         "x": 677,
         "y": 132,
@@ -389,6 +413,7 @@
       "name": "Cliffs of Moher",
       "continent": "Europe",
       "hint": "Wow, they filmed part of a harry potter movie here! It was quite far from my visit to the Blarney Stone.",
+      "image": "/postcard_images/cliffsofmoher.jpg",
       "worldMap": {
         "x": 591,
         "y": 131,
@@ -405,6 +430,7 @@
       "name": "Oslo",
       "continent": "Europe",
       "hint": "It's such a pretty city! I visited the fjords before coming here and they were so beautiful, I do hope that you see them one day.",
+      "image": "/postcard_images/oslo.png",
       "worldMap": {
         "x": 670,
         "y": 96,
@@ -421,6 +447,7 @@
       "name": "Mt Fuji",
       "continent": "Asia",
       "hint": "Wow, it's even more perfect than in the pictures! It's actually a volcano, which is a little scary, but it looked so peaceful. I saw it from a distance while riding the Shinkansen (the bullet train), which was so fast!",
+      "image": "/postcard_images/mtfuji.jpg",
       "worldMap": {
         "x": 1235,
         "y": 217,
@@ -437,6 +464,7 @@
       "name": "Taj Mahal",
       "continent": "Asia",
       "hint": "This was just breathtaking. It's actually a monument for love, built by an emperor for his wife. Isn't that romantic? It looked like it was floating.",
+      "image": "/postcard_images/tajmahal.jpeg",
       "worldMap": {
         "x": 977,
         "y": 269,
@@ -453,6 +481,7 @@
       "name": "Forbidden City",
       "continent": "Asia",
       "hint": "This place is huge! They said regular people weren't allowed in for 500 years, which is why they call it 'Forbidden.' I felt like I was in a movie!",
+      "image": "/postcard_images/forbiddencity.jpg",
       "worldMap": {
         "x": 1125,
         "y": 195,
@@ -469,6 +498,7 @@
       "name": "The Chocolate Hills",
       "continent": "Asia",
       "hint": "They're these perfect little gumdrop-shaped hills that turn brown, just like chocolate, in the dry season. I've never seen anything like it!",
+      "image": "/postcard_images/chocolatehills.jpg",
       "worldMap": {
         "x": 1198,
         "y": 342,
@@ -485,6 +515,7 @@
       "name": "Jeju Island",
       "continent": "Asia",
       "hint": "This island was such a nice break from the big city. It's volcanic! I learned about the famous 'grandfather stones' that are supposed to protect the villages.",
+      "image": "/postcard_images/jejuisland.png",
       "worldMap": {
         "x": 1190,
         "y": 230,
@@ -501,6 +532,7 @@
       "name": "Burj Khalifa",
       "continent": "Asia",
       "hint": "I can't believe how tall this building is! My ears popped in the elevator going up, it was that fast. You can see the entire city and the desert.",
+      "image": "/postcard_images/burjkhalifa.jpeg",
       "worldMap": {
         "x": 873,
         "y": 272,
@@ -517,6 +549,7 @@
       "name": "Mt Everest",
       "continent": "Asia",
       "hint": "It's the highest point on Earth! Just looking at it made me feel cold. It's amazing to think people actually try to get to the very top.",
+      "image": "/postcard_images/mteverest.jpg",
       "worldMap": {
         "x": 1016,
         "y": 254,
@@ -533,6 +566,7 @@
       "name": "Great Pyramid of Giza",
       "continent": "Africa",
       "hint": "The heat of the desert was intense, but it was amazing to stand before the shadow of a tomb built thousands of years ago.",
+      "image": "/postcard_images/greatpyramidsofgiza.jpg",
       "worldMap": {
         "x": 763,
         "y": 245,
@@ -549,6 +583,7 @@
       "name": "Nile Delta",
       "continent": "Africa",
       "hint": "After all the desert and the sand, I finally found where the world turned bright green, as a river of life cut through leading towards the sea.",
+      "image": "/postcard_images/niledelta.jpg",
       "worldMap": {
         "x": 762,
         "y": 238,
@@ -565,6 +600,7 @@
       "name": "Zimbabwe Ruins",
       "continent": "Africa",
       "hint": "I walked through a city of stone, with perfect walls making me wonder about the kingdom that once was",
+      "image": "/postcard_images/zimbabweruins.jpg",
       "worldMap": {
         "x": 761,
         "y": 505,
@@ -581,6 +617,7 @@
       "name": "Timbuktu",
       "continent": "Africa",
       "hint": "I stood here, in the middle of the sahara where was once the richest center of learning in the world",
+      "image": "/postcard_images/timbuktu.png",
       "worldMap": {
         "x": 605,
         "y": 314,
@@ -597,6 +634,7 @@
       "name": "Serengeti National Park",
       "continent": "Africa",
       "hint": "I drove a jeep through the never ending plains, seeing the wildebeest run across the land, and lions roaring in the distance",
+      "image": "/postcard_images/serengeti.jpg",
       "worldMap": {
         "x": 783,
         "y": 412,
@@ -613,6 +651,7 @@
       "name": "Mt Kilimanjaro",
       "continent": "Africa",
       "hint": "I was at the top of the world, well above the clouds as my lungs burned from the thin air. It was strange to see so much snow from what was normally such a hot area.",
+      "image": "/postcard_images/mtkilaminjaro.jpg",
       "worldMap": {
         "x": 798,
         "y": 415,

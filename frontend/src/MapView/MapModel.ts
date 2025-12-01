@@ -195,6 +195,7 @@ export class MapModel {
     name: string;
     continent: string;
     hint: string;
+    image: string;
     x: number;
     y: number;
     tolerance: number;

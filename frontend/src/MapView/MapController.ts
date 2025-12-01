@@ -46,6 +46,30 @@ export class MapController {
       nonGame: this.view.nonGame
     });
 
+    // Check if click is on postcard - if so, ignore it (let postcard handle it)
+    let shape: Konva.Node | null = e.target as Konva.Node;
+    while (shape) {
+      const shapeName = shape.name();
+      if (shapeName === "postcard") {
+        // Click is on postcard, don't process as map click
+        console.log("Click on postcard, ignoring map click");
+        return;
+      }
+      // Check all parents up the chain
+      const parent = shape.getParent();
+      if (parent) {
+        if (parent.name() === "postcard") {
+          console.log("Click on postcard (via parent), ignoring map click");
+          return;
+        }
+        // Also check if parent is a group that contains postcard
+        if (parent instanceof Konva.Group && parent.find(".postcard").length > 0) {
+          console.log("Click inside postcard group, ignoring map click");
+          return;
+        }
+      }
+      shape = parent;
+    }
 
     // Handle Instructions button
     if(this.view.nonGame){
@@ -230,13 +254,6 @@ export class MapController {
     this.model.messageBoxVisible = false;
 
     if (wasCorrectGuess) {
-      if (this.onLocationFound) {
-        const currentLocation = this.model.getCurrentLocationData();
-        if (currentLocation) {
-          this.onLocationFound(currentLocation);
-        }
-      }
-
       const hasMoreLocations = this.model.advanceToNextLocation();
 
       this.view.updateHint();
@@ -246,9 +263,17 @@ export class MapController {
       // Update path visualization to show all correct locations
       this.view.updatePathVisualization();
 
-      if (this.model.hasClickedLocations()) {
-        this.showTravelPath();
-      } else if (hasMoreLocations) {
+      // After advancing to next location, notify with the NEW location data
+      if (this.onLocationFound) {
+        const newLocation = this.model.getCurrentLocationData();
+        if (newLocation) {
+          this.onLocationFound(newLocation);
+        }
+      }
+
+      // Don't show travel path automatically - let user continue guessing
+      // The path visualization is already shown during gameplay via updatePathVisualization()
+      if (hasMoreLocations) {
         this.view.draw();
       } else {
         console.log("Game complete!");

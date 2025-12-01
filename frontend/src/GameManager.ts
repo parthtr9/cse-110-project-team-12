@@ -16,6 +16,8 @@ export class GameManager {
     private mapModel: MapModel | null = null;
     private mapView: MapView | null = null;
     private mapController: MapController | null = null;
+    private postcardController: PostcardController | null = null;
+    private postcardView: PostcardView | null = null;
 
     constructor(containerId: string) {
         this.containerId = containerId;
@@ -102,18 +104,81 @@ export class GameManager {
         
         this.currentController = this.mapController;
 
+        // Show postcard at the start of the map
+        const currentLocationData = this.mapModel.getCurrentLocationData();
+        if (currentLocationData) {
+            this.showPostcard(currentLocationData);
+        }
+
         (this.mapController as any).setOnLocationFound((locationData: any) => {
+            // After correct guess, show new postcard for the next location
+            // The old postcard will be replaced
             this.showPostcard(locationData);
         });
     }
 
     private showPostcard(locationData: any) {
-        const controller = new FlagGameController();
-        this.currentController = controller;
-        controller.start();
+        // Don't clear the map - show postcard on top of it
+        // Get the map's layer to add the postcard to it
+        if (!this.mapView) {
+            console.error("Map view not available");
+            return;
+        }
 
-        (controller as any).setOnFinish(() => {
-            this.showMap();
-        });
+        // Destroy existing postcard if there is one
+        if (this.postcardView) {
+            this.postcardView.destroy();
+            this.postcardView = null;
+            this.postcardController = null;
+        }
+
+        const mapLayer = this.mapView.getLayer();
+        
+        // Convert locationData to Postcard Location format
+        const postcardLocation = new Location(
+            locationData.name,
+            { x: locationData.x, y: locationData.y },
+            `A postcard from ${locationData.name}.`, // You can customize this story
+            3, // Number of days - you can get this from locationData if available
+            locationData.hint || "", // Include the hint from locationData
+            locationData.image || "" // Include the image path from locationData
+        );
+
+        // Create postcard model and view
+        const postcardModel = new PostcardModel(postcardLocation);
+        const postcardView = new PostcardView(mapLayer);
+        this.postcardView = postcardView;
+        
+        // Create postcard controller with callbacks
+        const postcardController = new PostcardController(
+            postcardModel,
+            postcardView,
+            () => {
+                // On close: just minimize the postcard, keep map visible
+                // The postcard will be minimized to bottom-left
+            },
+            () => {
+                // On travel: destroy postcard and show flag game
+                if (this.postcardView) {
+                    this.postcardView.destroy();
+                    this.postcardView = null;
+                    this.postcardController = null;
+                }
+                const flagController = new FlagGameController();
+                this.currentController = flagController;
+                flagController.start();
+
+                (flagController as any).setOnFinish(() => {
+                    // After flag game, return to map
+                    this.showMap();
+                });
+            }
+        );
+        this.postcardController = postcardController;
+
+        // Ensure postcard appears on top of all map elements
+        const postcardGroup = postcardView.getGroup();
+        postcardGroup.moveToTop();
+        mapLayer.draw();
     }
 }
