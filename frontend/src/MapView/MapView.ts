@@ -290,7 +290,7 @@ export class MapView {
   private renderDaysTraveledText(): void {
     // Remove existing text if it exists
     const existingText = this.layer.find((node: Konva.Node) =>
-      node.name() === "daysTraveledText" || node.name() === "hintText"
+      node.name() === "daysTraveledText"
     );
     existingText.forEach((node) => node.destroy());
 
@@ -308,21 +308,6 @@ export class MapView {
     this.layer.add(daysText);
     daysText.moveToTop();
 
-    // Render current hint
-    const hintText = new Konva.Text({
-      x: 20,
-      y: 20,
-      text: `Hint: ${this.model.hint}`,
-      fontSize: 16,
-      fontFamily: "Arial",
-      fill: "black",
-      width: this.stage.width() - 300,
-      wrap: "word",
-      name: "hintText",
-    });
-
-    this.layer.add(hintText);
-    hintText.moveToTop();
   }
 
   // Update the hint text (call this when location changes)
@@ -537,7 +522,7 @@ export class MapView {
     const instMessage = new Konva.Group({
       name: "messageBox",
     });
-    const inst = "To play the map game, click on a point in the map to guess where this mystery location is! After your first 2 attempts, a yellow circle will appear as a hint! Your location is inside of that circle. After clicking on the correct location, a message will appear congratulating then you need to click on the red \"Continue\" button and you can continue playing the game!";
+    const inst = "To play the map game, click on a point in the map to guess where this mystery location is! After your first 2 attempts, a yellow circle will appear as a hint! Your location is inside of that circle. After clicking on the correct location, a message will appear congratulating then you need to click on the red \"Continue\" button and you can continue playing the game! \n Your hint is also in your postcard, appearing once you reach a destination or if you click on the postcard on the bottom left of your screen. Your postcard contains a picture of your location and your grandma's hint for you, alongside buttons to access minigames! Have fun!";
     const { background, text, buttonBackground, buttonText } = this.createMessageBox(inst);
     instMessage.add(background);
     instMessage.add(text);
