@@ -14,7 +14,7 @@ export class PostcardController {
 
     this.view.setClickHandler(() => this.handleCardClick());
     this.view.setCloseHandler(() => this.handleCloseClick());
-    this.view.setTravelHandler(() => this.handleTravelClick());
+    //this.view.setTravelHandler(() => this.handleTravelClick());
     this.updateView();
   }
 

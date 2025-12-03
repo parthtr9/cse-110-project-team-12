@@ -16,7 +16,7 @@ export class PostcardView {
   private backView: PostcardBackView;
   private cardBg: Konva.Rect;
   private closeButton: Konva.Group | null;
-  private travelButton: Konva.Group | null;
+  //private travelButton: Konva.Group | null;
 
   constructor(layer: Konva.Layer) {
     this.layer = layer;
@@ -43,7 +43,7 @@ export class PostcardView {
   this.frontView = new PostcardFrontView(this.cardWidth, this.cardHeight);
   this.backView = new PostcardBackView(this.cardWidth, this.cardHeight);
   this.closeButton = null;
-  this.travelButton = null;
+  //this.travelButton = null;
 
     this.cardBg = new Konva.Rect();
     this.setupCard();
@@ -74,7 +74,7 @@ export class PostcardView {
 
     this.group.add(this.cardBg);
     this.createCloseButton();
-    this.createTravelButton();
+    //this.createTravelButton();
     this.layer.add(this.group);
     
     // Stop all clicks on postcard from propagating to stage
@@ -86,44 +86,44 @@ export class PostcardView {
     });
   }
 
-  private createTravelButton(): void {
-    this.travelButton = new Konva.Group({
-      name: "travelButton",
-      x: this.cardWidth - 140,
-      y: this.cardHeight - 60,
-    });
+  // private createTravelButton(): void {
+  //   this.travelButton = new Konva.Group({
+  //     name: "travelButton",
+  //     x: this.cardWidth - 140,
+  //     y: this.cardHeight - 60,
+  //   });
 
-    const bg = new Konva.Rect({
-      width: 120,
-      height: 40,
-      fill: "#4CAF50",
-      cornerRadius: 8,
-    });
-    const text = new Konva.Text({
-      text: "Travel",
-      fontSize: 18,
-      fill: "white",
-      x: 60,
-      y: 8,
-      align: "center",
-    });
-    text.offsetX(text.width() / 2);
+  //   const bg = new Konva.Rect({
+  //     width: 120,
+  //     height: 40,
+  //     fill: "#4CAF50",
+  //     cornerRadius: 8,
+  //   });
+  //   const text = new Konva.Text({
+  //     text: "Travel",
+  //     fontSize: 18,
+  //     fill: "white",
+  //     x: 60,
+  //     y: 8,
+  //     align: "center",
+  //   });
+  //   text.offsetX(text.width() / 2);
 
-    this.travelButton.add(bg);
-    this.travelButton.add(text);
+  //   this.travelButton.add(bg);
+  //   this.travelButton.add(text);
 
-    // hover effect
-    this.travelButton.on("mouseenter", () => {
-      (bg as Konva.Rect).fill("#66BB6A");
-      this.layer.batchDraw();
-    });
-    this.travelButton.on("mouseleave", () => {
-      (bg as Konva.Rect).fill("#4CAF50");
-      this.layer.batchDraw();
-    });
+  //   // hover effect
+  //   this.travelButton.on("mouseenter", () => {
+  //     (bg as Konva.Rect).fill("#66BB6A");
+  //     this.layer.batchDraw();
+  //   });
+  //   this.travelButton.on("mouseleave", () => {
+  //     (bg as Konva.Rect).fill("#4CAF50");
+  //     this.layer.batchDraw();
+  //   });
 
-    this.group.add(this.travelButton);
-  }
+  //   this.group.add(this.travelButton);
+  // }
 
   private createCloseButton(): void {
     this.closeButton = new Konva.Group({
@@ -261,18 +261,18 @@ export class PostcardView {
     }
   }
 
-  setTravelHandler(handler: () => void): void {
-    if (this.travelButton) {
-      this.travelButton.on("click", (e) => {
-        e.cancelBubble = true;
-        handler();
-      });
-      this.travelButton.on("tap", (e) => {
-        e.cancelBubble = true;
-        handler();
-      });
-    }
-  }
+  // setTravelHandler(handler: () => void): void {
+  //   if (this.travelButton) {
+  //     this.travelButton.on("click", (e) => {
+  //       e.cancelBubble = true;
+  //       handler();
+  //     });
+  //     this.travelButton.on("tap", (e) => {
+  //       e.cancelBubble = true;
+  //       handler();
+  //     });
+  //   }
+  // }
 
   getGroup(): Konva.Group {
     return this.group;

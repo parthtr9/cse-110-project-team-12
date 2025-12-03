@@ -9,6 +9,8 @@ import { PostcardModel } from "./Postcard/PostcardModel";
 import { PostcardView } from "./Postcard/PostcardView";
 import { Location } from "./Postcard/Location";
 import { FlagGameController } from "./FlagMinigame/FlagGameController";
+import { MoneyController } from "./MoneyMiniGame/MoneyController";
+import { CompletionController } from "./Completion/CompletionController";
 
 export class GameManager {
     private containerId: string;
@@ -18,6 +20,7 @@ export class GameManager {
     private mapController: MapController | null = null;
     private postcardController: PostcardController | null = null;
     private postcardView: PostcardView | null = null;
+    private readonly TARGET_LOCATIONS = 10; 
 
     constructor(containerId: string) {
         this.containerId = containerId;
@@ -27,15 +30,69 @@ export class GameManager {
         this.showIntro();
     }
 
-    private clearContainer() {
+    private clearContainer(preserveGameButtons: boolean = true) {
         const container = document.getElementById(this.containerId);
         if (container) {
-            container.innerHTML = "";
+            if (preserveGameButtons) {
+                // Remove all children except our game buttons
+                const buttons = container.querySelectorAll('button');
+                buttons.forEach(button => {
+                    if (button.textContent !== 'Flag Game' && button.textContent !== 'Currency Game') {
+                        button.remove();
+                    }
+                });
+                
+                // Remove all non-button elements
+                Array.from(container.children).forEach(child => {
+                    if (child.tagName !== 'DIV' || !child.querySelector('button')) {
+                        container.removeChild(child);
+                    }
+                });
+            } else {
+                // Remove everything including game buttons
+                container.innerHTML = '';
+            }
         }
+        
         if (this.currentController && this.currentController.destroy) {
             this.currentController.destroy();
         }
         this.currentController = null;
+    }
+
+    private showCompletionScreen() {
+        // Clear the container but keep game buttons
+        this.clearContainer();
+        
+        const stage = new Konva.Stage({
+            container: this.containerId,
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
+        const layer = new Konva.Layer();
+        stage.add(layer);
+
+        const completionController = new CompletionController(layer, stage);
+        this.currentController = completionController;
+        
+        // Get days traveled from mapModel or default to 1
+        const daysTraveled = this.mapModel ? this.mapModel.daysTraveled : 1;
+        
+        // Show completion screen
+        (completionController as any).showCompletionScreen(daysTraveled);
+        
+        // Set up play again callback
+        (completionController as any).onPlayAgainCallback = () => {
+            // Reset the game state
+            this.mapModel = null;
+            this.mapView = null;
+            this.mapController = null;
+            this.postcardController = null;
+            this.postcardView = null;
+            
+            // Restart the game
+            this.showIntro();
+        };
     }
 
     private showIntro() {
@@ -49,6 +106,9 @@ export class GameManager {
         const layer = new Konva.Layer();
         stage.add(layer);
 
+        // Add game buttons
+        this.createGameButtons();
+
         const introController = new IntroScreenController(layer, stage);
         this.currentController = introController;
 
@@ -58,6 +118,17 @@ export class GameManager {
     }
 
     private async showMap() {
+        // Check if we have a model and if we've reached the target number of locations
+        if (this.mapModel) {
+            const visitedCount = this.mapModel.getVisitedLocationCount();
+            console.log(`Visited locations: ${visitedCount}/${this.TARGET_LOCATIONS}`);
+            
+            if (visitedCount >= this.TARGET_LOCATIONS) {
+                this.showCompletionScreen();
+                return;
+            }
+        }
+
         // Don't clear if we're just returning to the map - preserve the model
         // Only clear if we're coming from intro or a different screen
         const shouldClear = !this.mapModel;
@@ -94,6 +165,8 @@ export class GameManager {
         // The view needs to be recreated because the Konva stage was destroyed
         this.mapView = new MapView(this.containerId, this.mapModel);
         await this.mapView.init();
+
+        this.createGameButtons();
         
         // Ensure the stage is ready before creating controller
         // Recreate controller with the new view
@@ -181,4 +254,87 @@ export class GameManager {
         postcardGroup.moveToTop();
         mapLayer.draw();
     }
+    // In GameManager.ts
+    private createGameButtons(): void {
+        const container = document.getElementById(this.containerId);
+        if (!container) return;
+
+        // Create container for game buttons
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.position = 'fixed';
+        buttonContainer.style.bottom = '20px';
+        buttonContainer.style.right = '20px';
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.gap = '10px';
+        buttonContainer.style.zIndex = '1000'; // Ensure it's above other elements
+
+        // Flag Game Button
+        const flagButton = document.createElement('button');
+        flagButton.textContent = 'Flag Game';
+        flagButton.style.padding = '10px 15px';
+        flagButton.style.backgroundColor = '#4CAF50';
+        flagButton.style.color = 'white';
+        flagButton.style.border = 'none';
+        flagButton.style.borderRadius = '5px';
+        flagButton.style.cursor = 'pointer';
+        flagButton.addEventListener('click', () => this.startFlagGame());
+
+        // Currency Game Button
+        const currencyButton = document.createElement('button');
+        currencyButton.textContent = 'Currency Game';
+        currencyButton.style.padding = '10px 15px';
+        currencyButton.style.backgroundColor = '#2196F3';
+        currencyButton.style.color = 'white';
+        currencyButton.style.border = 'none';
+        currencyButton.style.borderRadius = '5px';
+        currencyButton.style.cursor = 'pointer';
+        currencyButton.addEventListener('click', () => this.startCurrencyGame());
+
+        buttonContainer.appendChild(flagButton);
+        buttonContainer.appendChild(currencyButton);
+        container.appendChild(buttonContainer);
+    }
+    private startFlagGame(): void {
+    // Clean up any existing postcard
+    if (this.postcardView) {
+        this.postcardView.destroy();
+        this.postcardView = null;
+        this.postcardController = null;
+    }
+
+    // Start the flag game
+    const flagController = new FlagGameController();
+    this.currentController = flagController;
+    flagController.start();
+
+    // Handle game completion
+    (flagController as any).setOnFinish(() => {
+        this.showMap();  // Return to map when game is done
+    });
+}
+
+private startCurrencyGame(): void {
+    // Clean up any existing postcard
+    if (this.postcardView) {
+        this.postcardView.destroy();
+        this.postcardView = null;
+        this.postcardController = null;
+    }
+
+    // Start the money mini game
+    const moneyGameController = new MoneyController();
+    this.currentController = moneyGameController;
+    moneyGameController.startGame();
+
+    // Since MoneyController doesn't have a setOnFinish method,
+    // we'll use a polling approach to detect when the game is done
+    const checkGameEnded = setInterval(() => {
+        // Check if the overlay is still in the DOM
+        const overlay = document.querySelector('div[style*="position: fixed"][style*="background-color: rgba(0, 0, 0, 0.7)"]');
+        if (!overlay) {
+            clearInterval(checkGameEnded);
+            this.showMap();
+        }
+    }, 500);
+}
 }
