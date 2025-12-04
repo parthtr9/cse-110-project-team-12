@@ -165,18 +165,11 @@ export class MapController {
 
   // Handle clicks on the map
   private handleMapClick(clickX: number, clickY: number): void {
-
     // Convert click coordinates from displayed space to original image space
     const originalClick = this.view.unscaleCoordinates({ x: clickX, y: clickY });
 
     // Check if click is correct (using original image coordinates)
     const wasCorrect = this.model.isClickCorrect(originalClick.x, originalClick.y);
-
-    // Debug: Log click coordinates and target location
-    const target = this.model.correctLocation;
-    const distance = Math.sqrt(
-      Math.pow(originalClick.x - target.x, 2) + Math.pow(originalClick.y - target.y, 2)
-    );
 
     // Store the clicked location in model (using original coordinates)
     this.model.addClickedLocation({
@@ -199,26 +192,45 @@ export class MapController {
     if (wasCorrect) {
       this.view.hideHintCircle();
       this.correctBuzzer.play();
-		  this.correctBuzzer.currentTime = 0;
+      this.correctBuzzer.currentTime = 0;
       this.model._daysTraveled += this.model.days;
       this.model.days = 1;
-      // Mark this location as visited so it won't be shown again
+      
+      // Mark this location as visited
       this.model.markCurrentLocationAsVisited();
-      this.showSuccessMessage();
-    } 
-    else {
-      this.view.hideHintCircle();
-      this.wrongBuzzer.play();
-      this.wrongBuzzer.currentTime = 0;
-      this.model.days++;
-      this.showIncorrectMessage();
-
-      if(this.model.days >= 3){
-        this.view.showHintCircle();
+      
+      // Check if we've reached 10 locations
+      const visitedCount = this.model.getVisitedLocationCount();
+      console.log(`[handleMapClick] Visited ${visitedCount} locations`);
+      
+      if (visitedCount >= 10) {
+        console.log("Reached 10 locations, notifying game manager");
+        if (this.onLocationFound) {
+          // Clear any existing messages or UI elements
+          this.view.removeMessageBoxes();
+          this.view.removeMarkers();
+          
+          // Notify the game manager to show completion screen
+          this.onLocationFound({ isGameComplete: true });
+        }
+        return; // Don't show success message or advance to next location
       }
-    }
+          
+          this.showSuccessMessage();
+      } 
+      else {
+          this.view.hideHintCircle();
+          this.wrongBuzzer.play();
+          this.wrongBuzzer.currentTime = 0;
+          this.model.days++;
+          this.showIncorrectMessage();
 
-    this.view.draw();
+          if(this.model.days >= 3){
+              this.view.showHintCircle();
+          }
+      }
+
+      this.view.draw();
   }
 
   // Show success message
@@ -249,39 +261,53 @@ export class MapController {
   }
 
   // Dismiss message box
+
   private dismissMessageBox(wasCorrectGuess: boolean): void {
-    this.view.removeMessageBoxes();
-    this.model.messageBoxVisible = false;
+      this.view.removeMessageBoxes();
+      this.model.messageBoxVisible = false;
 
-    if (wasCorrectGuess) {
-      const hasMoreLocations = this.model.advanceToNextLocation();
+      if (wasCorrectGuess) {
+          // Check if we've reached exactly 10 locations
+          const visitedCount = this.model.getVisitedLocationCount();
+          console.log(`[dismissMessageBox] Visited ${visitedCount} locations`); // Debug log
+          
+          if (visitedCount >= 10) { // Show completion screen after 10 locations
+              console.log("Reached 10 locations, showing completion screen");
+              if (this.onLocationFound) {
+                  this.onLocationFound({ isGameComplete: true });
+              }
+              return;
+          }
 
-      this.view.updateHint();
-      this.view.hideTargetLocation();
-      this.view.showTargetLocation();
+          // If not at 10 yet, advance to next location
+          const hasMoreLocations = this.model.advanceToNextLocation();
+          
+          if (!hasMoreLocations) {
+              console.log("No more locations available");
+              if (this.onLocationFound) {
+                  this.onLocationFound({ isGameComplete: true });
+              }
+              return;
+          }
+
+          this.view.updateHint();
+          this.view.hideTargetLocation();
+          this.view.showTargetLocation();
+          this.view.updatePathVisualization();
+
+          // Notify about the new location
+          if (this.onLocationFound) {
+              const newLocation = this.model.getCurrentLocationData();
+              if (newLocation) {
+                  this.onLocationFound({ 
+                      ...newLocation, 
+                      isGameComplete: false 
+                  });
+              }
+          }
+      }
       
-      // Update path visualization to show all correct locations
-      this.view.updatePathVisualization();
-
-      // After advancing to next location, notify with the NEW location data
-      if (this.onLocationFound) {
-        const newLocation = this.model.getCurrentLocationData();
-        if (newLocation) {
-          this.onLocationFound(newLocation);
-        }
-      }
-
-      // Don't show travel path automatically - let user continue guessing
-      // The path visualization is already shown during gameplay via updatePathVisualization()
-      if (hasMoreLocations) {
-        this.view.draw();
-      } else {
-        console.log("Game complete!");
-        this.view.draw();
-      }
-    } else {
       this.view.draw();
-    }
   }
 
   // Show travel path visualization

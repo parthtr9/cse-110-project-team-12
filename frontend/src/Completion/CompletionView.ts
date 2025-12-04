@@ -53,36 +53,43 @@ export class CompletionView {
         // Title
         const title = new Konva.Text({
             x: 0,
-            y: height * 0.15,
+            y: height * 0.1,  // Moved up slightly
             width: width,
             text: 'You Completed Mei Mei\'s Journey!',
-            fontSize: 56,
+            fontSize: Math.min(56, width * 0.05),  // Responsive font size
             fontFamily: 'Arial',
             fill: '#2c3e50',
             align: 'center',
             fontStyle: 'bold',
+            padding: 20,
         });
         this.group.add(title);
+
+        // Calculate dynamic positions based on screen height
+        const sectionSpacing = height * 0.08;
+        let currentY = height * 0.2;  // Start lower to give title more space
 
         // Days travelled display
         const daysLabel = new Konva.Text({
             x: 0,
-            y: height * 0.35,
+            y: currentY,
             width: width,
             text: 'Days Travelled',
-            fontSize: 32,
+            fontSize: Math.min(32, width * 0.03),
             fontFamily: 'Arial',
             fill: '#7f8c8d',
             align: 'center',
         });
         this.group.add(daysLabel);
 
+        currentY += daysLabel.height() + 10;  // Add some space after label
+
         const daysValue = new Konva.Text({
             x: 0,
-            y: height * 0.35 + 60,
+            y: currentY,
             width: width,
             text: `${daysTravelled}`,
-            fontSize: 72,
+            fontSize: Math.min(72, width * 0.1),
             fontFamily: 'Arial',
             fill: 'black',
             align: 'center',
@@ -90,9 +97,11 @@ export class CompletionView {
         });
         this.group.add(daysValue);
 
-        // Badge Image
-        const badgeY = height * 0.60;
-        const badgeSize = 160;
+        // Position badge with proper spacing - moved down further
+        currentY += daysValue.height() + (sectionSpacing * 2);  // Increased spacing before badge
+        const badgeSize = Math.min(200, width * 0.3);  // Responsive badge size
+        const badgeY = currentY;
+        currentY += badgeSize + (sectionSpacing * 1.5);  // Slightly reduced spacing after badge
 
         const imageObj = new Image();
         imageObj.onload = () => {
@@ -108,11 +117,11 @@ export class CompletionView {
         };
         imageObj.src = badgeImagePath;
 
-        // Play Again button
-        const buttonWidth = 300;
-        const buttonHeight = 70;
+        // Play Again button - positioned lower
+        const buttonWidth = Math.min(300, width * 0.6);
+        const buttonHeight = Math.min(70, height * 0.1);
         const buttonX = (width - buttonWidth) / 2;
-        const buttonY = height * 0.78;
+        const buttonY = Math.min(currentY + (sectionSpacing * 0.5), height * 0.85);  // Moved down further
 
         const playAgainBtn = new Konva.Rect({
             x: buttonX,
@@ -128,10 +137,10 @@ export class CompletionView {
 
         const playAgainText = new Konva.Text({
             x: buttonX,
-            y: buttonY + 20,
+            y: buttonY + (buttonHeight / 2) - 12,  // Center text vertically in button
             width: buttonWidth,
             text: 'Play Again',
-            fontSize: 28,
+            fontSize: Math.min(28, buttonWidth * 0.08),
             fontFamily: 'Arial',
             fill: '#ffffff',
             align: 'center',

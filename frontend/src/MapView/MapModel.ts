@@ -214,12 +214,15 @@ export class MapModel {
   // Mark the current location as visited (called when correctly guessed)
   markCurrentLocationAsVisited(): void {
     if (this._currentLocationId) {
+      console.log(`Marking location ${this._currentLocationId} as visited`);
       this._visitedLocationIds.add(this._currentLocationId);
+      console.log(`Total visited locations: ${this._visitedLocationIds.size}`, Array.from(this._visitedLocationIds));
     }
   }
 
   // Get the number of visited locations
   getVisitedLocationCount(): number {
+    console.log(`Getting visited location count: ${this._visitedLocationIds.size}`, Array.from(this._visitedLocationIds));
     return this._visitedLocationIds.size;
   }
 

@@ -61,17 +61,27 @@ export class GameManager {
     }
 
     private showCompletionScreen() {
+        console.log("showCompletionScreen called");
+        
         // Clear the container but keep game buttons
         this.clearContainer();
         
+        // Clean up any existing controllers or views
+        if (this.mapView && this.mapView.destroy) {
+            this.mapView.destroy();
+        }
+        
+        // Create a new stage for the completion screen
         const stage = new Konva.Stage({
             container: this.containerId,
             width: window.innerWidth,
             height: window.innerHeight,
         });
+        
         const layer = new Konva.Layer();
         stage.add(layer);
 
+        // Create and show the completion screen
         const completionController = new CompletionController(layer, stage);
         this.currentController = completionController;
         
@@ -79,20 +89,26 @@ export class GameManager {
         const daysTraveled = this.mapModel ? this.mapModel.daysTraveled : 1;
         
         // Show completion screen
-        (completionController as any).showCompletionScreen(daysTraveled);
+        completionController.showCompletionScreen(daysTraveled);
         
-        // Set up play again callback
-        (completionController as any).onPlayAgainCallback = () => {
-            // Reset the game state
-            this.mapModel = null;
-            this.mapView = null;
-            this.mapController = null;
-            this.postcardController = null;
-            this.postcardView = null;
-            
-            // Restart the game
-            this.showIntro();
-        };
+        // Set up play again callback using the proper setter method
+        if (completionController && typeof completionController.setOnPlayAgain === 'function') {
+            completionController.setOnPlayAgain(() => {
+                console.log("Play again clicked, resetting game...");
+                
+                // Reset the game state
+                this.mapModel = null;
+                this.mapView = null;
+                this.mapController = null;
+                this.postcardController = null;
+                this.postcardView = null;
+                
+                // Restart the game
+                this.showIntro();
+            });
+        } else {
+            console.error("setOnPlayAgain is not available on completionController");
+        }
     }
 
     private showIntro() {
@@ -121,9 +137,10 @@ export class GameManager {
         // Check if we have a model and if we've reached the target number of locations
         if (this.mapModel) {
             const visitedCount = this.mapModel.getVisitedLocationCount();
-            console.log(`Visited locations: ${visitedCount}/${this.TARGET_LOCATIONS}`);
+            console.log(`[showMap] Visited locations: ${visitedCount}/${this.TARGET_LOCATIONS}`);
             
             if (visitedCount >= this.TARGET_LOCATIONS) {
+                console.log("[showMap] Showing completion screen");
                 this.showCompletionScreen();
                 return;
             }
@@ -171,6 +188,13 @@ export class GameManager {
         // Ensure the stage is ready before creating controller
         // Recreate controller with the new view
         this.mapController = new MapController(this.mapModel, this.mapView);
+        this.mapController.setOnLocationFound((data: any) => {
+            console.log("onLocationFound callback:", data); // Debug log
+            if (data.isGameComplete) {
+                console.log("Game complete, showing completion screen");
+                this.showCompletionScreen();
+            }
+        });
         
         // Force a redraw to ensure everything is ready
         this.mapView.draw();
@@ -183,14 +207,26 @@ export class GameManager {
             this.showPostcard(currentLocationData);
         }
 
-        (this.mapController as any).setOnLocationFound((locationData: any) => {
-            // After correct guess, show new postcard for the next location
-            // The old postcard will be replaced
-            this.showPostcard(locationData);
+        (this.mapController as any).setOnLocationFound((data: any) => {
+            console.log("onLocationFound callback:", data);
+            
+            if (data.isGameComplete) {
+                console.log("Game complete, showing completion screen");
+                this.showCompletionScreen();
+            } else {
+                // Only show postcard if not game complete
+                this.showPostcard(data);
+            }
         });
     }
 
     private showPostcard(locationData: any) {
+        // Don't show postcard if game is complete
+        if (this.mapModel && this.mapModel.getVisitedLocationCount() >= this.TARGET_LOCATIONS) {
+            console.log("Game complete, skipping postcard");
+            return;
+        }
+
         // Don't clear the map - show postcard on top of it
         // Get the map's layer to add the postcard to it
         if (!this.mapView) {
